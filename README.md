@@ -2,26 +2,52 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.6.
 
+admin project to perform simple crud on entities
+under development till now take the source and run `ng s`
+and go to `http://localhost:4200/admin`
+
+it abstracts each entity to many aspects
+
+```typescript
+export interface EntityViewsConfig {
+  // dash board configs
+  // where we can see a table of entities in the system
+  label: string;
+  icon?: string;
+  description: string;
+  // configures web service that will make the crud operations
+  // it must be restful and  apply the best practices of rest end points design
+  // ex:
+  // GET http://<domain>/resources
+  // POST http://<domain>/resources
+  // PUT http://<domain>/resources/:id
+  // DELETE http://<domain>/resources/:id
+  webService: {
+    resourceURI: string;
+    paginated: boolean;
+  };
+  // form to create or update its formentity model from my lib ddd-form not added yet
+  createOrUpdateView: {
+    formEntity: any;
+  };
+  // table view config which has two actions delete and edit
+  //
+  tableView: {
+    displayedColumns: string[];
+    actions: {
+      edit: {
+        label: string;
+        enableEditFn?: (row: any) => boolean;
+      };
+      delete: {
+        label: string;
+        enableDeleteFn?: (row: any) => boolean;
+      };
+    };
+  };
+}
+```
+
 ## Development server
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+Run `ng serve` for a dev server. Navigate to `http://localhost:4200/admin`. The app will automatically reload if you change any of the source files.
