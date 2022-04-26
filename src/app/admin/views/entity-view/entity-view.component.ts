@@ -77,7 +77,7 @@ export class EntityViewComponent implements OnInit {
 
   confirm(data: ConfirmSpecs): Observable<boolean> {
     const dialogRef = this.dialog.open(ConfirmComponent, {
-      width: '250px',
+      width: '700px',
       data: data,
     });
 
