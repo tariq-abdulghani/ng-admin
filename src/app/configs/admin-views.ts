@@ -79,7 +79,6 @@ export const entityViewsConfigArray: EntityViewsConfig[] = [
       },
     },
   },
-  // https://jsonplaceholder.typicode.com/albums
   {
     label: 'albums',
     description: ' albums',

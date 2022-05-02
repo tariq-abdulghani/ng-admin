@@ -24,3 +24,16 @@ export interface EntityViewsConfig {
     };
   };
 }
+
+export interface Link {
+  href: string;
+  rel: string;
+  type: 'GET' | 'POST' | 'UPDATE' | 'PATCH';
+}
+
+export interface RestResource {
+  name: string;
+  description?: string;
+  icon?: string;
+  links: Link[];
+}
