@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, Type } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
@@ -17,12 +17,7 @@ import {
 } from '../../decorators/web-resource';
 import { TableSpec, TABLE_META_KEY } from '../../decorators/table';
 import { Nullable } from '../../utils/nullable';
-import {
-  ActionSpec,
-  EntityViewContext,
-  RowContext,
-} from '../../models/action-spec';
-import { CreateOrUpdateComponent } from '../create-or-update/create-or-update.component';
+import { TableContext, RowContext } from '../../models/ui-contexts';
 import { UpdateComponent } from '../update/update.component';
 import { ID_META_KEY } from 'src/app/dynamic-form/core/models/decorators/context/form-context';
 import { CreateComponent } from '../create/create.component';
@@ -156,6 +151,7 @@ export class EntityViewComponent implements OnInit {
       row: row,
       formEntity: null,
       links: this.links,
+      data: this.data,
       idField: Reflect.getMetadata(ID_META_KEY, this.entityClass),
     };
     const dialogRef = this.dialog.open(UpdateComponent, {
@@ -170,12 +166,12 @@ export class EntityViewComponent implements OnInit {
   }
 
   onNew() {
-    const ctx: EntityViewContext = {
+    const ctx: TableContext = {
       entityLabel: this.entityName,
       formEntity: null,
       links: this.links,
       idField: Reflect.getMetadata(ID_META_KEY, this.entityClass),
-      data: null,
+      data: this.data,
     };
     const dialogRef = this.dialog.open(CreateComponent, {
       width: '70%',
@@ -185,6 +181,15 @@ export class EntityViewComponent implements OnInit {
       data: ctx,
     });
 
-    return dialogRef.afterClosed().subscribe((res) => {});
+    return dialogRef.afterClosed().subscribe((res) => {
+      // console.log(res, this.data);
+      // this.dataSource = new MatTableDataSource(this.data);
+      // this.dataSource.paginator = this.paginator;
+      if (res && !(res instanceof HttpErrorResponse)) {
+        console.log(this.data);
+        this.dataSource = new MatTableDataSource(this.data);
+        this.dataSource.paginator = this.paginator;
+      }
+    });
   }
 }

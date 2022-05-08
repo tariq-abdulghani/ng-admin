@@ -12,7 +12,6 @@ import { MatInputModule } from '@angular/material/input';
 
 import { MatDialogModule } from '@angular/material/dialog';
 import { ConfirmComponent } from './views/confirm/confirm.component';
-import { CreateOrUpdateComponent } from './views/create-or-update/create-or-update.component';
 
 import { MatCardModule } from '@angular/material/card';
 import { UpdateComponent } from './views/update/update.component';
@@ -23,7 +22,6 @@ import { CreateComponent } from './views/create/create.component';
   declarations: [
     EntityViewComponent,
     ConfirmComponent,
-    CreateOrUpdateComponent,
     UpdateComponent,
     CreateComponent,
   ],
