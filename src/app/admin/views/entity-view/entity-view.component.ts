@@ -1,18 +1,31 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Type } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { EntityViewsConfig } from '../../models/entity';
-import { EntityViewsRegisterer } from '../../services/entity-registerer';
 
-import { AfterViewInit, ViewChild } from '@angular/core';
+import { ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmComponent } from '../confirm/confirm.component';
 import { ConfirmSpecs } from '../../models/confirm-specs';
 import { Observable } from 'rxjs';
+import { EntityRegistry } from 'src/app/dynamic-form/core/services/entity-registry/entity-registry.service';
+import {
+  CrudLink,
+  WebResourceSpec,
+  WEB_RESOURCE_META_KEY,
+} from '../../decorators/web-resource';
+import { TableSpec, TABLE_META_KEY } from '../../decorators/table';
+import { Nullable } from '../../utils/nullable';
+import {
+  ActionSpec,
+  EntityViewContext,
+  RowContext,
+} from '../../models/action-spec';
 import { CreateOrUpdateComponent } from '../create-or-update/create-or-update.component';
-import { ActionSpec } from '../../models/action-spec';
+import { UpdateComponent } from '../update/update.component';
+import { ID_META_KEY } from 'src/app/dynamic-form/core/models/decorators/context/form-context';
+import { CreateComponent } from '../create/create.component';
 
 @Component({
   selector: 'app-entity-view',
@@ -27,38 +40,20 @@ export class EntityViewComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private activatedRout: ActivatedRoute,
-    private entityRegisterer: EntityViewsRegisterer,
+    private entityRegistry: EntityRegistry,
     public dialog: MatDialog
   ) {}
 
-  entityViewsConfigId!: string;
-  entityViewsConfig!: EntityViewsConfig;
   data: any[] = [];
   displayedColumns: string[] = [];
+  entityName!: string;
+  links: CrudLink[] = [];
+  tableSpec!: TableSpec;
+  entityClass!: Type<any>;
 
   ngOnInit(): void {
     this.activatedRout.paramMap.subscribe((res) => {
-      // console.log('init.');
-      //@ts-ignore
-      this.entityViewsConfigId = res!.get('id');
-      // console.log(res.get('id'));
-      //@ts-ignore
-      this.entityViewsConfig =
-        this.entityRegisterer.getEntityViewsConfigByLabel(
-          this.entityViewsConfigId
-        );
-      // this.entityViewsConfig.tableView.displayedColumns.push('actions');
-      this.init();
-      // console.log(this.entityViewsConfig);
-
-      this.http
-        .get(this.entityViewsConfig.webService.resourceURI)
-        .toPromise()
-        .then((res) => {
-          this.data = res as any;
-          this.dataSource = new MatTableDataSource(this.data);
-          this.dataSource.paginator = this.paginator;
-        });
+      this.init(res.get('id'));
     });
   }
 
@@ -68,59 +63,126 @@ export class EntityViewComponent implements OnInit {
     return this.displayedColumns;
   }
 
-  init() {
-    this.displayedColumns = Array.from(
-      this.entityViewsConfig.tableView.displayedColumns
-    );
-    this.displayedColumns.push('actions');
+  /**
+   *
+   * finding entity that has the resource that matches passed param
+   * preparing component analyzing links and table config
+   * getting data form server
+   * more refactor needed
+   *
+   */
+  init(entityName: Nullable<string>) {
+    this.entityName = entityName || 'none';
+    const entityClass = this.entityRegistry.get(this.entityName);
+
+    console.log(entityClass);
+
+    if (entityClass) {
+      this.entityClass = entityClass;
+      const resourceSpec: WebResourceSpec = Reflect.getMetadata(
+        WEB_RESOURCE_META_KEY,
+        entityClass.prototype
+      );
+      resourceSpec?.links.forEach((link) => {
+        this.links.push(link);
+      });
+
+      console.log(this.links);
+
+      const tableSpec: TableSpec = Reflect.getMetadata(
+        TABLE_META_KEY,
+        entityClass.prototype
+      );
+      this.tableSpec = tableSpec;
+      console.log(tableSpec);
+      this.displayedColumns = Array.of(
+        ...this.tableSpec.columns,
+        this.tableSpec.actions ? 'actions' : ''
+      );
+      this.loadData();
+    }
   }
 
   confirm(data: ConfirmSpecs): Observable<boolean> {
     const dialogRef = this.dialog.open(ConfirmComponent, {
-      width: '250px',
+      width: '700px',
       data: data,
     });
 
     return dialogRef.afterClosed();
   }
 
-  onDelete(entity: any) {
+  loadData() {
+    const getLink = this.links.find((link) => link.type == 'GET');
+    const uri = `${getLink?.href}/${getLink?.rel}`;
+    this.http
+      .get(uri)
+      .toPromise()
+      .then((res) => {
+        this.data = res as any;
+        this.dataSource = new MatTableDataSource(this.data);
+        this.dataSource.paginator = this.paginator;
+      });
+  }
+
+  onDelete(row: any) {
     const data: ConfirmSpecs = {
-      header: this.entityViewsConfig.label,
+      header: this.entityName,
       confirmMessage: 'are you sure you want to delete this item?',
       yesLabel: 'yes',
       noLabel: 'no',
     };
     this.confirm(data)
       .toPromise()
-      .then((cv) => console.log('confirm ', cv));
+      .then((cv) => {
+        if (cv) {
+          const getLink = this.links.find((link) => link.type == 'DELETE');
+          const uri = `${getLink?.href}/${getLink?.rel}/${
+            row[Reflect.getMetadata(ID_META_KEY, this.entityClass) || 'id']
+          }`;
+          this.http
+            .delete(uri)
+            .toPromise()
+            .then((res) => {
+              this.loadData();
+            });
+        }
+      });
   }
 
-  onEdit(element: any) {
-    const action: ActionSpec = {
-      entityLabel: this.entityViewsConfig.label,
-      initialValue: element,
+  onEdit(row: any) {
+    const rowCtx: RowContext = {
+      entityLabel: this.entityName,
+      row: row,
       formEntity: null,
-      action: 'update',
+      links: this.links,
+      idField: Reflect.getMetadata(ID_META_KEY, this.entityClass),
     };
-    const dialogRef = this.dialog.open(CreateOrUpdateComponent, {
-      width: '700px',
-      data: action,
+    const dialogRef = this.dialog.open(UpdateComponent, {
+      width: '70%',
+      height: 'fit-content',
+      maxHeight: '80%',
+      hasBackdrop: true,
+      data: rowCtx,
     });
 
     return dialogRef.afterClosed().subscribe((res) => {});
   }
 
   onNew() {
-    const action: ActionSpec = {
-      entityLabel: this.entityViewsConfig.label,
-      initialValue: null,
+    const ctx: EntityViewContext = {
+      entityLabel: this.entityName,
       formEntity: null,
-      action: 'create',
+      links: this.links,
+      idField: Reflect.getMetadata(ID_META_KEY, this.entityClass),
+      data: null,
     };
-    const dialogRef = this.dialog.open(CreateOrUpdateComponent, {
-      width: '700px',
-      data: action,
+    const dialogRef = this.dialog.open(CreateComponent, {
+      width: '70%',
+      height: 'fit-content',
+      maxHeight: '80%',
+      hasBackdrop: true,
+      data: ctx,
     });
 
     return dialogRef.afterClosed().subscribe((res) => {});

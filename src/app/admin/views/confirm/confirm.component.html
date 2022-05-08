@@ -5,10 +5,15 @@
   <p>{{ confirmMessage || "are you sure?" }}</p>
 </div>
 <div mat-dialog-actions align="end">
-  <button mat-button color="primary" (click)="onNoClick()">
+  <button mat-raised-button color="basic" (click)="onNoClick()">
     {{ noLabel || "no" }}
   </button>
-  <button mat-button color="warn" [mat-dialog-close]="true" cdkFocusInitial>
+  <button
+    mat-raised-button
+    color="basic"
+    [mat-dialog-close]="true"
+    cdkFocusInitial
+  >
     {{ yesLabel || "yes" }}
   </button>
 </div>

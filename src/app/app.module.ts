@@ -5,8 +5,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { AdminModule } from './admin/admin.module';
-import { entityViewsConfigArray } from './configs/admin-views';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { DecoratorDrivenDynamicFormsModule } from './dynamic-form/decorator-driven-dynamic-forms.module';
+import { Todo } from './demo/todo';
 
 @NgModule({
   declarations: [AppComponent],
@@ -14,9 +15,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    AdminModule.forRoot(entityViewsConfigArray),
     BrowserAnimationsModule,
+    DecoratorDrivenDynamicFormsModule.scan([Todo]),
+    AdminModule,
   ],
+  exports: [],
   providers: [],
   bootstrap: [AppComponent],
 })

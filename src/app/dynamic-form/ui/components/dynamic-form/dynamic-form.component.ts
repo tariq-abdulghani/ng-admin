@@ -11,6 +11,7 @@ import {
   SimpleChanges,
   TemplateRef,
 } from '@angular/core';
+import { UseContext } from 'src/app/dynamic-form/core/models/decorators/context/form-context';
 import { FormValueTransformer } from '../../../core/models/types/forms/form-value-transformer';
 import { InputNode } from '../../../core/models/types/inputs/input-node';
 import { EntityRegistry } from '../../../core/services/entity-registry/entity-registry.service';
@@ -30,7 +31,9 @@ export class DynamicFormComponent implements OnInit, AfterContentInit {
   formEntity!: any;
   @Input('entityName') entityName!: string;
   @Input('initialValue') initialValue!: any;
-  @Input('valueTransformer') valueTransformer?: FormValueTransformer<any, any>;
+  @Input('useContext') useContext!: UseContext;
+  @Input('valueTransformer')
+  valueTransformer?: FormValueTransformer<any, any>;
   @Output('submitEvent') submitEvent: EventEmitter<any> =
     new EventEmitter<any>();
   @Output('changeEvent') changEvent: EventEmitter<any> =
@@ -66,7 +69,8 @@ export class DynamicFormComponent implements OnInit, AfterContentInit {
       if (entityClass) {
         this.formEntity = new entityClass();
         this.inputTree = this.formEntityProcessorService.process(
-          this.formEntity
+          this.formEntity,
+          this.useContext
         );
         console.log(this.inputTree);
         this.dynamicFormContextService.setContext(

@@ -1,5 +1,6 @@
 import { MapUtil } from '../../../utils/map-util';
 import { FormMeta, FormSpec } from '../../types/forms/form-meta';
+import 'reflect-metadata';
 
 export const FORM_METADATA_KEY = Symbol('FormSpec');
 

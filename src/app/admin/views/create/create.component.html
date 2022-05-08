@@ -1,0 +1,26 @@
+<div mat-dialog-title class="dialog-title d-flex justify-content-between">
+  <h2 mat-dialog-title>
+    {{ ctx.entityLabel }}
+  </h2>
+  <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+<div mat-dialog-content>
+  <d-form
+    #df
+    [entityName]="'todo'"
+    [useContext]="'CREATE'"
+    (submitEvent)="onSave($event)"
+  >
+    <button *dfButton class="btn btn-success" type="submit">save</button>
+    <button
+      *dfButton
+      class="btn btn-success"
+      type="button"
+      (click)="onCancel()"
+    >
+      cancel
+    </button>
+  </d-form>
+</div>
