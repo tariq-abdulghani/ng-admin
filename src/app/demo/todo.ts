@@ -12,7 +12,7 @@ import {
   Id,
   UpdateOverride,
 } from '../dynamic-form/core/models/decorators/context/form-context';
-import { Required } from '../dynamic-form/core/models/decorators/validation/sync/not-null';
+import { Required } from '../dynamic-form/core/models/decorators/validation/sync/required';
 
 @WebResource({
   name: 'todo',
