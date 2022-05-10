@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, Type } from '@angular/core';
+import { Component, InjectionToken, OnInit, Type } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { ViewChild } from '@angular/core';
@@ -21,11 +21,15 @@ import { TableContext, RowContext } from '../../models/ui-contexts';
 import { UpdateComponent } from '../update/update.component';
 import { ID_META_KEY } from 'src/app/dynamic-form/core/models/decorators/context/form-context';
 import { CreateComponent } from '../create/create.component';
+import { ViewContextService } from '../../services/view-context.service';
+import { CreateAction } from '../../services/create-action';
+import { UpdateAction } from '../../services/update-action';
 
 @Component({
   selector: 'app-entity-view',
   templateUrl: './entity-view.component.html',
   styleUrls: ['./entity-view.component.css'],
+  providers: [ViewContextService, CreateAction, UpdateAction],
 })
 export class EntityViewComponent implements OnInit {
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
@@ -36,7 +40,10 @@ export class EntityViewComponent implements OnInit {
     private http: HttpClient,
     private activatedRout: ActivatedRoute,
     private entityRegistry: EntityRegistry,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private viewCtxService: ViewContextService,
+    public createAction: CreateAction,
+    public updateAction: UpdateAction
   ) {}
 
   data: any[] = [];
@@ -94,6 +101,7 @@ export class EntityViewComponent implements OnInit {
         ...this.tableSpec.columns,
         this.tableSpec.actions ? 'actions' : ''
       );
+
       this.loadData();
     }
   }
@@ -102,6 +110,7 @@ export class EntityViewComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmComponent, {
       width: '700px',
       data: data,
+      hasBackdrop: false,
     });
 
     return dialogRef.afterClosed();
@@ -117,6 +126,19 @@ export class EntityViewComponent implements OnInit {
         this.data = res as any;
         this.dataSource = new MatTableDataSource(this.data);
         this.dataSource.paginator = this.paginator;
+      })
+      .then((_) => {
+        const ctx: TableContext = {
+          entityLabel: this.entityName,
+          formEntity: null,
+          links: this.links,
+          idField: Reflect.getMetadata(ID_META_KEY, this.entityClass),
+          data: this.data,
+        };
+        this.viewCtxService.setTableContext(ctx);
+        this.viewCtxService.contextChanges().subscribe((ctx) => {
+          console.log('ctx changed', ctx);
+        });
       });
   }
 
@@ -158,7 +180,7 @@ export class EntityViewComponent implements OnInit {
       width: '70%',
       height: 'fit-content',
       maxHeight: '80%',
-      hasBackdrop: true,
+      hasBackdrop: false,
       data: rowCtx,
     });
 
@@ -177,7 +199,7 @@ export class EntityViewComponent implements OnInit {
       width: '70%',
       height: 'fit-content',
       maxHeight: '80%',
-      hasBackdrop: true,
+      hasBackdrop: false,
       data: ctx,
     });
 

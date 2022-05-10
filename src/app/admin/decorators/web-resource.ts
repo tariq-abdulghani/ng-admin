@@ -13,10 +13,26 @@ export function WebResource(specs: WebResourceSpec) {
   };
 }
 
-type EndPoint = {
-  title: string;
-  description: string;
+// type EndPoint = {
+//   title: string;
+//   description: string;
+//   uri: string;
+//   uriContext: string;
+//   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+// };
+
+type ActionEndPoint = {
+  action: string;
+  description?: string;
   uri: string;
   uriContext: string;
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 };
+
+export class EndPoints {
+  constructor(private endPoints: ActionEndPoint[]) {}
+
+  getUri(action: string): string {
+    return '';
+  }
+}

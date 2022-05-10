@@ -13,10 +13,10 @@
         mat-mini-fab
         color="basic"
         aria-label="Example icon-button with heart icon"
-        (click)="onNew()"
+        (click)="createAction.apply()"
       >
         <!-- <mat-icon>note_add</mat-icon> -->
-        <mat-icon>add</mat-icon>
+        <mat-icon>{{ createAction.title }}</mat-icon>
       </button>
     </mat-toolbar>
 
@@ -37,9 +37,9 @@
                 mat-icon-button
                 color="primary"
                 aria-label="Example icon button with a heart icon"
-                (click)="onEdit(element)"
+                (click)="updateAction.apply(element)"
               >
-                <mat-icon>create</mat-icon>
+                <mat-icon>{{ updateAction.title }}</mat-icon>
               </button>
 
               <button

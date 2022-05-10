@@ -1,12 +1,18 @@
-<div mat-dialog-title class="dialog-title d-flex justify-content-between">
-  <h2 mat-dialog-title>
-    {{ ctx.entityLabel }}
-  </h2>
+<!-- <div mat-dialog-title class="dialog-title d-flex justify-content-between">
+</div> -->
+
+<mat-toolbar
+  mat-dialog-title
+  class="dialog-title d-flex justify-content-between"
+  color="basic"
+>
+  <span>{{ ctx.entityLabel }}</span>
+  <span class="example-spacer"></span>
   <button mat-icon-button aria-label="close dialog" mat-dialog-close>
     <mat-icon>close</mat-icon>
   </button>
-</div>
-<div mat-dialog-content>
+</mat-toolbar>
+<div>
   <d-form
     #df
     [entityName]="'todo'"

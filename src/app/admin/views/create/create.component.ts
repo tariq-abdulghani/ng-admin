@@ -1,7 +1,8 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, InjectionToken, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { TableContext, RowContext } from '../../models/ui-contexts';
+export const TABLE_CONTEXT = new InjectionToken<TableContext>('table context');
 
 @Component({
   selector: 'app-create',
@@ -11,15 +12,14 @@ import { TableContext, RowContext } from '../../models/ui-contexts';
 export class CreateComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<any>,
-    @Inject(MAT_DIALOG_DATA) public data: TableContext,
-    private http: HttpClient
+    private http: HttpClient,
+    @Inject(MAT_DIALOG_DATA) public data: TableContext
   ) {}
 
   ctx!: TableContext;
 
   ngOnInit(): void {
     this.ctx = this.data;
-    // console.log(this.data);
   }
 
   onSave(value?: any) {
