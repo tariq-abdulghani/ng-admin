@@ -13,20 +13,19 @@ export class CreateAction extends AbstractAction {
   }
 
   apply() {
+    const ctx = this.ctxService.getTableContext();
     const dialogRef = this.dialog.open(CreateComponent, {
       width: '80%',
       height: 'fit-content',
       maxHeight: '80%',
       hasBackdrop: false,
-      data: this.ctxService.getTableContext(),
+      data: ctx,
     });
 
     dialogRef.afterClosed().subscribe((res) => {
       if (res && !(res instanceof HttpErrorResponse)) {
-        this.ctxService.setTableContext(
-          this.ctxService.getTableContext(),
-          true
-        );
+        // ctx.data.push(res);
+        this.ctxService.setTableContext(ctx, true);
       }
     });
   }

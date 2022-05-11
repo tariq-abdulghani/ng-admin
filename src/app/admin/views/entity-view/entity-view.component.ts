@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Injector, OnInit, Type } from '@angular/core';
+import { Component, Injector, OnDestroy, OnInit, Type } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { MatDialog } from '@angular/material/dialog';
@@ -21,6 +21,7 @@ import { ViewContextService } from '../../services/view-context.service';
 import { CreateAction } from '../../services/create-action';
 import { UpdateAction } from '../../services/update-action';
 import { DeleteAction } from '../../services/delete-action';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-entity-view',
@@ -28,14 +29,14 @@ import { DeleteAction } from '../../services/delete-action';
   styleUrls: ['./entity-view.component.css'],
   providers: [ViewContextService, CreateAction, UpdateAction, DeleteAction],
 })
-export class EntityViewComponent implements OnInit {
+export class EntityViewComponent implements OnInit, OnDestroy {
   data: any[] = [];
   entityName!: string;
   links: CrudLink[] = [];
   tableModel!: DynamicTableModel;
   entityClass!: Type<any>;
   idField!: string;
-
+  contextChangeSubscription!: Subscription;
   constructor(
     private http: HttpClient,
     private activatedRout: ActivatedRoute,
@@ -49,6 +50,10 @@ export class EntityViewComponent implements OnInit {
     this.activatedRout.paramMap.subscribe((res) => {
       this.init(res.get('id'));
     });
+  }
+
+  ngOnDestroy(): void {
+    this.contextChangeSubscription.unsubscribe();
   }
 
   /**
@@ -103,10 +108,19 @@ export class EntityViewComponent implements OnInit {
           data: this.data,
         };
         this.viewCtxService.setTableContext(ctx);
-        this.viewCtxService.contextChanges().subscribe((ctx) => {
-          console.log('ctx changed', ctx);
-          this.data = ctx.data;
-        });
+        if (!this.contextChangeSubscription) {
+          this.contextChangeSubscription = this.viewCtxService
+            .contextChanges()
+            .subscribe((ctx) => {
+              console.log('ctx changed', ctx);
+              // console.log(this.data == ctx.data);
+              if (this.data == ctx.data) {
+                this.data = Array.of(...ctx.data);
+              } else {
+                this.data = ctx.data;
+              }
+            });
+        }
       });
   }
 

@@ -8,7 +8,7 @@ export class ViewContextService {
   constructor() {}
 
   public setTableContext(ctx: TableContext, emitEvent?: boolean): void {
-    this.tableContext = ctx;
+    this.tableContext = { ...ctx };
     if (emitEvent === true) {
       this.contextChangeEvent.emit(this.tableContext);
     }

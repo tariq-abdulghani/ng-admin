@@ -37,7 +37,8 @@ export class DynamicCrudTableComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes.data) {
-      this.dataSource = new MatTableDataSource(changes.data.currentValue);
+      // console.log('data changed,', this.data, changes.data.currentValue);
+      this.dataSource = new MatTableDataSource(this.data);
       this.dataSource.paginator = this.paginator;
     }
   }
