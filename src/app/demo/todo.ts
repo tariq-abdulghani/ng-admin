@@ -41,7 +41,6 @@ import { Required } from '../dynamic-form/core/models/decorators/validation/sync
 })
 @Table({
   columns: ['id', 'title', 'completed'],
-  actions: ['create', 'edit', 'delete'],
 })
 @FormEntity({ name: 'todo' })
 export class Todo {

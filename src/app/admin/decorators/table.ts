@@ -1,3 +1,5 @@
+import { AbstractAction } from '../services/abstract-action';
+
 export const TABLE_META_KEY = Symbol('WebResource');
 export type Pagination = {
   async: boolean;
@@ -6,7 +8,8 @@ export type Pagination = {
 export type TableSpec = {
   columns: string[];
   pagination?: Pagination;
-  actions: string[];
+  menuBar?: AbstractAction[];
+  actions?: AbstractAction[];
 };
 
 export function Table(specs: TableSpec) {

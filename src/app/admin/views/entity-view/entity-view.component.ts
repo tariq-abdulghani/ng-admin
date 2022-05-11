@@ -1,14 +1,11 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, InjectionToken, OnInit, Type } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, Type } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmComponent } from '../confirm/confirm.component';
-import { ConfirmSpecs } from '../../models/confirm-specs';
-import { Observable } from 'rxjs';
 import { EntityRegistry } from 'src/app/dynamic-form/core/services/entity-registry/entity-registry.service';
 import {
   CrudLink,
@@ -17,10 +14,8 @@ import {
 } from '../../decorators/web-resource';
 import { TableSpec, TABLE_META_KEY } from '../../decorators/table';
 import { Nullable } from '../../utils/nullable';
-import { TableContext, RowContext } from '../../models/ui-contexts';
-import { UpdateComponent } from '../update/update.component';
+import { TableContext } from '../../models/ui-contexts';
 import { ID_META_KEY } from 'src/app/dynamic-form/core/models/decorators/context/form-context';
-import { CreateComponent } from '../create/create.component';
 import { ViewContextService } from '../../services/view-context.service';
 import { CreateAction } from '../../services/create-action';
 import { UpdateAction } from '../../services/update-action';
@@ -61,8 +56,6 @@ export class EntityViewComponent implements OnInit {
     });
   }
 
-  ngAfterViewInit() {}
-
   getDisplayedColumns() {
     return this.displayedColumns;
   }
@@ -99,24 +92,14 @@ export class EntityViewComponent implements OnInit {
       );
       this.tableSpec = tableSpec;
       console.log(tableSpec);
-      this.displayedColumns = Array.of(
-        ...this.tableSpec.columns,
-        this.tableSpec.actions ? 'actions' : ''
-      );
+      this.displayedColumns = Array.of(...this.tableSpec.columns);
+      if (!tableSpec.actions || tableSpec.actions.length > 0) {
+        this.displayedColumns.push('actions');
+      }
 
       this.loadData();
     }
   }
-
-  // confirm(data: ConfirmSpecs): Observable<boolean> {
-  //   const dialogRef = this.dialog.open(ConfirmComponent, {
-  //     width: '700px',
-  //     data: data,
-  //     hasBackdrop: false,
-  //   });
-
-  //   return dialogRef.afterClosed();
-  // }
 
   loadData() {
     const getLink = this.links.find((link) => link.type == 'GET');
@@ -143,77 +126,4 @@ export class EntityViewComponent implements OnInit {
         });
       });
   }
-
-  // onDelete(row: any) {
-  //   const data: ConfirmSpecs = {
-  //     header: this.entityName,
-  //     confirmMessage: 'are you sure you want to delete this item?',
-  //     yesLabel: 'yes',
-  //     noLabel: 'no',
-  //   };
-  //   this.confirm(data)
-  //     .toPromise()
-  //     .then((cv) => {
-  //       if (cv) {
-  //         const getLink = this.links.find((link) => link.type == 'DELETE');
-  //         const uri = `${getLink?.href}/${getLink?.rel}/${
-  //           row[Reflect.getMetadata(ID_META_KEY, this.entityClass) || 'id']
-  //         }`;
-  //         this.http
-  //           .delete(uri)
-  //           .toPromise()
-  //           .then((res) => {
-  //             this.loadData();
-  //           });
-  //       }
-  //     });
-  // }
-
-  // onEdit(row: any) {
-  //   const rowCtx: RowContext = {
-  //     entityLabel: this.entityName,
-  //     row: row,
-  //     formEntity: null,
-  //     links: this.links,
-  //     data: this.data,
-  //     idField: Reflect.getMetadata(ID_META_KEY, this.entityClass),
-  //   };
-  //   const dialogRef = this.dialog.open(UpdateComponent, {
-  //     width: '70%',
-  //     height: 'fit-content',
-  //     maxHeight: '80%',
-  //     hasBackdrop: false,
-  //     data: rowCtx,
-  //   });
-
-  //   return dialogRef.afterClosed().subscribe((res) => {});
-  // }
-
-  // onNew() {
-  //   const ctx: TableContext = {
-  //     entityLabel: this.entityName,
-  //     formEntity: null,
-  //     links: this.links,
-  //     idField: Reflect.getMetadata(ID_META_KEY, this.entityClass),
-  //     data: this.data,
-  //   };
-  //   const dialogRef = this.dialog.open(CreateComponent, {
-  //     width: '70%',
-  //     height: 'fit-content',
-  //     maxHeight: '80%',
-  //     hasBackdrop: false,
-  //     data: ctx,
-  //   });
-
-  //   return dialogRef.afterClosed().subscribe((res) => {
-  //     // console.log(res, this.data);
-  //     // this.dataSource = new MatTableDataSource(this.data);
-  //     // this.dataSource.paginator = this.paginator;
-  //     if (res && !(res instanceof HttpErrorResponse)) {
-  //       console.log(this.data);
-  //       this.dataSource = new MatTableDataSource(this.data);
-  //       this.dataSource.paginator = this.paginator;
-  //     }
-  //   });
-  // }
 }
