@@ -1,5 +1,5 @@
-import { Table } from '../admin/decorators/table';
-import { WebResource } from '../admin/decorators/web-resource';
+import { Table, TableSpec } from '../admin/decorators/table';
+import { CrudLink, WebResource } from '../admin/decorators/web-resource';
 import { FormEntity } from '../dynamic-form/core/models/decorators/forms/forms';
 import { Nullable } from '../admin/utils/nullable';
 import {
@@ -8,40 +8,45 @@ import {
   SelectInput,
   TextInput,
 } from '../dynamic-form/core/models/decorators/inputs/inputs';
-import {
-  Id,
-  UpdateOverride,
-} from '../dynamic-form/core/models/decorators/context/form-context';
+import { Id } from '../dynamic-form/core/models/decorators/context/form-context';
 import { Required } from '../dynamic-form/core/models/decorators/validation/sync/required';
+
+const TODO_API: CrudLink[] = [
+  {
+    rel: 'todos',
+    type: 'GET',
+    href: 'https://jsonplaceholder.typicode.com',
+  },
+  {
+    rel: 'todos',
+    type: 'POST',
+    href: 'https://jsonplaceholder.typicode.com',
+  },
+  {
+    rel: 'todos',
+    type: 'PUT',
+    href: 'https://jsonplaceholder.typicode.com',
+  },
+  {
+    rel: 'todos',
+    type: 'DELETE',
+    href: 'https://jsonplaceholder.typicode.com',
+  },
+];
+
+const TODO_TABLE: TableSpec = {
+  columns: [
+    { key: 'id', displayName: 'Id', type: 'string' },
+    { key: 'title', displayName: 'Title', type: 'string' },
+    { key: 'completed', displayName: 'Completed', type: 'boolean' },
+  ],
+};
 
 @WebResource({
   name: 'todo',
-  links: [
-    {
-      rel: 'todos',
-      type: 'GET',
-      href: 'https://jsonplaceholder.typicode.com',
-    },
-    {
-      rel: 'todos',
-      type: 'POST',
-      href: 'https://jsonplaceholder.typicode.com',
-    },
-    {
-      rel: 'todos',
-      type: 'PUT',
-      href: 'https://jsonplaceholder.typicode.com',
-    },
-    {
-      rel: 'todos',
-      type: 'DELETE',
-      href: 'https://jsonplaceholder.typicode.com',
-    },
-  ],
+  links: TODO_API,
 })
-@Table({
-  columns: ['id', 'title', 'completed'],
-})
+@Table(TODO_TABLE)
 @FormEntity({ name: 'todo' })
 export class Todo {
   @Id({ generate: 'SERVER' })

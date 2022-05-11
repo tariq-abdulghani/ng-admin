@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { TableSpec } from '../../decorators/table';
+import { DynamicTableModel } from '../../decorators/table';
 
 @Component({
   selector: 'mat-d-crud-table',
@@ -16,7 +16,7 @@ import { TableSpec } from '../../decorators/table';
   styleUrls: ['./dynamic-crud-table.component.css'],
 })
 export class DynamicCrudTableComponent implements OnInit, OnChanges {
-  @Input() tableSpec!: TableSpec;
+  @Input() tableModel!: DynamicTableModel;
   @Input() data: any[] = [];
   @Input() title!: string;
   displayedColumns: string[] = [];
@@ -27,8 +27,10 @@ export class DynamicCrudTableComponent implements OnInit, OnChanges {
   constructor() {}
 
   ngOnInit(): void {
-    this.displayedColumns = Array.of(...this.tableSpec.columns);
-    if (!this.tableSpec.actions || this.tableSpec.actions.length > 0) {
+    this.displayedColumns = Array.of(
+      ...this.tableModel.columns.map((col) => col.key)
+    );
+    if (!this.tableModel.actions || this.tableModel.actions.length > 0) {
       this.displayedColumns.push('actions');
     }
   }

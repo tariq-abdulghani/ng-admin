@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, Type } from '@angular/core';
+import { Component, Injector, OnInit, Type } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { MatDialog } from '@angular/material/dialog';
@@ -9,7 +9,11 @@ import {
   WebResourceSpec,
   WEB_RESOURCE_META_KEY,
 } from '../../decorators/web-resource';
-import { TableSpec, TABLE_META_KEY } from '../../decorators/table';
+import {
+  DynamicTableModel,
+  TableSpec,
+  TABLE_META_KEY,
+} from '../../decorators/table';
 import { Nullable } from '../../utils/nullable';
 import { TableContext } from '../../models/ui-contexts';
 import { ID_META_KEY } from 'src/app/dynamic-form/core/models/decorators/context/form-context';
@@ -28,19 +32,17 @@ export class EntityViewComponent implements OnInit {
   data: any[] = [];
   entityName!: string;
   links: CrudLink[] = [];
-  tableSpec!: TableSpec;
+  tableModel!: DynamicTableModel;
   entityClass!: Type<any>;
   idField!: string;
 
   constructor(
     private http: HttpClient,
     private activatedRout: ActivatedRoute,
+    private injector: Injector,
     private entityRegistry: EntityRegistry,
     public dialog: MatDialog,
-    private viewCtxService: ViewContextService,
-    public createAction: CreateAction,
-    public updateAction: UpdateAction,
-    public deleteAction: DeleteAction
+    private viewCtxService: ViewContextService // public createAction: CreateAction, // public updateAction: UpdateAction, // public deleteAction: DeleteAction
   ) {}
 
   ngOnInit(): void {
@@ -75,10 +77,8 @@ export class EntityViewComponent implements OnInit {
         TABLE_META_KEY,
         entityClass.prototype
       );
-      this.tableSpec = tableSpec;
 
-      tableSpec.menuBar = [this.createAction];
-      tableSpec.actions = [this.updateAction, this.deleteAction];
+      this.getTableModel(tableSpec);
 
       this.idField = Reflect.getMetadata(ID_META_KEY, this.entityClass) || 'id';
       this.loadData();
@@ -108,5 +108,31 @@ export class EntityViewComponent implements OnInit {
           this.data = ctx.data;
         });
       });
+  }
+
+  getTableModel(specs: TableSpec) {
+    const tableModel: DynamicTableModel = {
+      columns: specs.columns,
+      actions: [],
+      menuBar: [],
+    };
+
+    if (specs.menuBar) {
+      specs.menuBar.forEach((menuItemClass) =>
+        tableModel.menuBar?.push(this.injector.get(menuItemClass))
+      );
+    } else {
+      tableModel.menuBar?.push(this.injector.get(CreateAction));
+    }
+
+    if (specs.actions) {
+      specs.actions.forEach((actionClass) =>
+        tableModel.actions?.push(this.injector.get(actionClass))
+      );
+    } else {
+      tableModel.actions?.push(this.injector.get(UpdateAction));
+      tableModel.actions?.push(this.injector.get(DeleteAction));
+    }
+    this.tableModel = tableModel;
   }
 }

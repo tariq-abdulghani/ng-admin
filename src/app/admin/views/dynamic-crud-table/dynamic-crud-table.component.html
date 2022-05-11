@@ -10,7 +10,7 @@
       </mat-form-field>
 
       <button
-        *ngFor="let menuItem of tableSpec.menuBar"
+        *ngFor="let menuItem of tableModel.menuBar"
         mat-icon-button
         aria-label="Example icon-button with heart icon"
         (click)="menuItem.apply()"
@@ -20,7 +20,28 @@
     </mat-toolbar>
 
     <table mat-table [dataSource]="dataSource">
-      <ng-container *ngFor="let col of getDisplayedColumns()">
+      <ng-container *ngFor="let colSpec of tableModel.columns">
+        <ng-container matColumnDef="{{ colSpec.key }}">
+          <th mat-header-cell *matHeaderCellDef>{{ colSpec.displayName }}</th>
+          <td mat-cell *matCellDef="let element">{{ element[colSpec.key] }}</td>
+        </ng-container>
+      </ng-container>
+      <ng-container matColumnDef="actions" *ngIf="tableModel.actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+          <button
+            *ngFor="let action of tableModel.actions"
+            mat-icon-button
+            color="primary"
+            aria-label="Example icon button with a heart icon"
+            (click)="action.apply(element)"
+          >
+            <mat-icon>{{ action.title }}</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- <ng-container *ngFor="let col of getDisplayedColumns()">
         <ng-container
           matColumnDef="{{ col }}"
           *ngIf="col != 'actions'; else actionsTemplate"
@@ -44,7 +65,7 @@
             </td>
           </ng-container>
         </ng-template>
-      </ng-container>
+      </ng-container> -->
       <tr mat-header-row *matHeaderRowDef="getDisplayedColumns()"></tr>
       <tr mat-row *matRowDef="let row; columns: getDisplayedColumns()"></tr>
     </table>
