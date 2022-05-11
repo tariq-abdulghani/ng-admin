@@ -4,47 +4,87 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 admin project to perform simple crud on entities
 under development till now take the source and run `ng s`
-and go to `http://localhost:4200/admin`
+and go to `http://localhost:4200/admin/todo`
 
 it abstracts each entity to many aspects
+just provide the description and the implementation is there, and you can add more actions to the table
+it has a dependency on `https://www.npmjs.com/package/ddd-form`
 
 ```typescript
-export interface EntityViewsConfig {
-  // dash board configs
-  // where we can see a table of entities in the system
-  label: string;
-  icon?: string;
-  description: string;
-  // configures web service that will make the crud operations
-  // it must be restful and  apply the best practices of rest end points design
-  // ex:
-  // GET http://<domain>/resources
-  // POST http://<domain>/resources
-  // PUT http://<domain>/resources/:id
-  // DELETE http://<domain>/resources/:id
-  webService: {
-    resourceURI: string;
-    paginated: boolean;
-  };
-  // form to create or update its formentity model from my lib ddd-form not added yet
-  createOrUpdateView: {
-    formEntity: any;
-  };
-  // table view config which has two actions delete and edit
-  //
-  tableView: {
-    displayedColumns: string[];
-    actions: {
-      edit: {
-        label: string;
-        enableEditFn?: (row: any) => boolean;
-      };
-      delete: {
-        label: string;
-        enableDeleteFn?: (row: any) => boolean;
-      };
-    };
-  };
+const TODO_API: CrudLink[] = [
+  {
+    rel: "todos",
+    type: "GET",
+    href: "https://jsonplaceholder.typicode.com",
+  },
+  {
+    rel: "todos",
+    type: "POST",
+    href: "https://jsonplaceholder.typicode.com",
+  },
+  {
+    rel: "todos",
+    type: "PUT",
+    href: "https://jsonplaceholder.typicode.com",
+  },
+  {
+    rel: "todos",
+    type: "DELETE",
+    href: "https://jsonplaceholder.typicode.com",
+  },
+];
+
+const TODO_TABLE: TableSpec = {
+  columns: [
+    { key: "id", displayName: "Id", type: "string" },
+    { key: "title", displayName: "Title", type: "string" },
+    { key: "completed", displayName: "Completed", type: "boolean" },
+  ],
+};
+
+@WebResource({
+  name: "todo",
+  links: TODO_API,
+})
+@Table(TODO_TABLE)
+@FormEntity({ name: "todo" })
+export class Todo {
+  @Id({ generate: "SERVER" })
+  @NumberInput({
+    id: "todo-id",
+    name: "id",
+    label: "id",
+    readonly: true,
+  })
+  id: Nullable<number> = null;
+
+  @Required({ message: "field is mandatory" })
+  @SelectInput({
+    id: "user-id",
+    name: "userId",
+    bindLabel: "name",
+    bindValue: "id",
+    dataSource: new URL("https://jsonplaceholder.typicode.com/users"),
+    compareWith: (a, b) => JSON.stringify(a) == JSON.stringify(b),
+    label: "user",
+  })
+  userId: Nullable<number> = null;
+
+  @Required({ message: "field is mandatory" })
+  @TextInput({
+    id: "title",
+    name: "title",
+    type: "text",
+    label: "title",
+  })
+  title: Nullable<string> = null;
+
+  @CheckboxInput({
+    id: "completed",
+    name: "completed",
+    label: "completed",
+  })
+  completed = false;
 }
 ```
 
