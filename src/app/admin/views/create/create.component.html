@@ -1,22 +1,33 @@
-<div mat-dialog-title class="dialog-title d-flex justify-content-between">
+<!-- <div mat-dialog-title class="dialog-title d-flex justify-content-between">
   <h2 mat-dialog-title>
     {{ ctx.entityLabel }}
   </h2>
   <button mat-icon-button aria-label="close dialog" mat-dialog-close>
     <mat-icon>close</mat-icon>
   </button>
-</div>
-<div mat-dialog-content>
+</div> -->
+<mat-toolbar
+  mat-dialog-title
+  class="dialog-title d-flex justify-content-between"
+  color="basic"
+>
+  <span>{{ ctx.entityLabel }}</span>
+  <span class="example-spacer"></span>
+  <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+    <mat-icon>close</mat-icon>
+  </button>
+</mat-toolbar>
+<div class="d-form-container">
   <d-form
     #df
     [entityName]="'todo'"
     [useContext]="'CREATE'"
     (submitEvent)="onSave($event)"
   >
-    <button *dfButton class="btn btn-success" type="submit">save</button>
+    <button *dfButton class="btn btn-secondary" type="submit">save</button>
     <button
       *dfButton
-      class="btn btn-success"
+      class="btn btn-secondary"
       type="button"
       (click)="onCancel()"
     >

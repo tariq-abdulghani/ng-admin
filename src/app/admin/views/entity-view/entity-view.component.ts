@@ -24,12 +24,13 @@ import { CreateComponent } from '../create/create.component';
 import { ViewContextService } from '../../services/view-context.service';
 import { CreateAction } from '../../services/create-action';
 import { UpdateAction } from '../../services/update-action';
+import { DeleteAction } from '../../services/delete-action';
 
 @Component({
   selector: 'app-entity-view',
   templateUrl: './entity-view.component.html',
   styleUrls: ['./entity-view.component.css'],
-  providers: [ViewContextService, CreateAction, UpdateAction],
+  providers: [ViewContextService, CreateAction, UpdateAction, DeleteAction],
 })
 export class EntityViewComponent implements OnInit {
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
@@ -43,7 +44,8 @@ export class EntityViewComponent implements OnInit {
     public dialog: MatDialog,
     private viewCtxService: ViewContextService,
     public createAction: CreateAction,
-    public updateAction: UpdateAction
+    public updateAction: UpdateAction,
+    public deleteAction: DeleteAction
   ) {}
 
   data: any[] = [];
@@ -106,15 +108,15 @@ export class EntityViewComponent implements OnInit {
     }
   }
 
-  confirm(data: ConfirmSpecs): Observable<boolean> {
-    const dialogRef = this.dialog.open(ConfirmComponent, {
-      width: '700px',
-      data: data,
-      hasBackdrop: false,
-    });
+  // confirm(data: ConfirmSpecs): Observable<boolean> {
+  //   const dialogRef = this.dialog.open(ConfirmComponent, {
+  //     width: '700px',
+  //     data: data,
+  //     hasBackdrop: false,
+  //   });
 
-    return dialogRef.afterClosed();
-  }
+  //   return dialogRef.afterClosed();
+  // }
 
   loadData() {
     const getLink = this.links.find((link) => link.type == 'GET');
@@ -142,76 +144,76 @@ export class EntityViewComponent implements OnInit {
       });
   }
 
-  onDelete(row: any) {
-    const data: ConfirmSpecs = {
-      header: this.entityName,
-      confirmMessage: 'are you sure you want to delete this item?',
-      yesLabel: 'yes',
-      noLabel: 'no',
-    };
-    this.confirm(data)
-      .toPromise()
-      .then((cv) => {
-        if (cv) {
-          const getLink = this.links.find((link) => link.type == 'DELETE');
-          const uri = `${getLink?.href}/${getLink?.rel}/${
-            row[Reflect.getMetadata(ID_META_KEY, this.entityClass) || 'id']
-          }`;
-          this.http
-            .delete(uri)
-            .toPromise()
-            .then((res) => {
-              this.loadData();
-            });
-        }
-      });
-  }
+  // onDelete(row: any) {
+  //   const data: ConfirmSpecs = {
+  //     header: this.entityName,
+  //     confirmMessage: 'are you sure you want to delete this item?',
+  //     yesLabel: 'yes',
+  //     noLabel: 'no',
+  //   };
+  //   this.confirm(data)
+  //     .toPromise()
+  //     .then((cv) => {
+  //       if (cv) {
+  //         const getLink = this.links.find((link) => link.type == 'DELETE');
+  //         const uri = `${getLink?.href}/${getLink?.rel}/${
+  //           row[Reflect.getMetadata(ID_META_KEY, this.entityClass) || 'id']
+  //         }`;
+  //         this.http
+  //           .delete(uri)
+  //           .toPromise()
+  //           .then((res) => {
+  //             this.loadData();
+  //           });
+  //       }
+  //     });
+  // }
 
-  onEdit(row: any) {
-    const rowCtx: RowContext = {
-      entityLabel: this.entityName,
-      row: row,
-      formEntity: null,
-      links: this.links,
-      data: this.data,
-      idField: Reflect.getMetadata(ID_META_KEY, this.entityClass),
-    };
-    const dialogRef = this.dialog.open(UpdateComponent, {
-      width: '70%',
-      height: 'fit-content',
-      maxHeight: '80%',
-      hasBackdrop: false,
-      data: rowCtx,
-    });
+  // onEdit(row: any) {
+  //   const rowCtx: RowContext = {
+  //     entityLabel: this.entityName,
+  //     row: row,
+  //     formEntity: null,
+  //     links: this.links,
+  //     data: this.data,
+  //     idField: Reflect.getMetadata(ID_META_KEY, this.entityClass),
+  //   };
+  //   const dialogRef = this.dialog.open(UpdateComponent, {
+  //     width: '70%',
+  //     height: 'fit-content',
+  //     maxHeight: '80%',
+  //     hasBackdrop: false,
+  //     data: rowCtx,
+  //   });
 
-    return dialogRef.afterClosed().subscribe((res) => {});
-  }
+  //   return dialogRef.afterClosed().subscribe((res) => {});
+  // }
 
-  onNew() {
-    const ctx: TableContext = {
-      entityLabel: this.entityName,
-      formEntity: null,
-      links: this.links,
-      idField: Reflect.getMetadata(ID_META_KEY, this.entityClass),
-      data: this.data,
-    };
-    const dialogRef = this.dialog.open(CreateComponent, {
-      width: '70%',
-      height: 'fit-content',
-      maxHeight: '80%',
-      hasBackdrop: false,
-      data: ctx,
-    });
+  // onNew() {
+  //   const ctx: TableContext = {
+  //     entityLabel: this.entityName,
+  //     formEntity: null,
+  //     links: this.links,
+  //     idField: Reflect.getMetadata(ID_META_KEY, this.entityClass),
+  //     data: this.data,
+  //   };
+  //   const dialogRef = this.dialog.open(CreateComponent, {
+  //     width: '70%',
+  //     height: 'fit-content',
+  //     maxHeight: '80%',
+  //     hasBackdrop: false,
+  //     data: ctx,
+  //   });
 
-    return dialogRef.afterClosed().subscribe((res) => {
-      // console.log(res, this.data);
-      // this.dataSource = new MatTableDataSource(this.data);
-      // this.dataSource.paginator = this.paginator;
-      if (res && !(res instanceof HttpErrorResponse)) {
-        console.log(this.data);
-        this.dataSource = new MatTableDataSource(this.data);
-        this.dataSource.paginator = this.paginator;
-      }
-    });
-  }
+  //   return dialogRef.afterClosed().subscribe((res) => {
+  //     // console.log(res, this.data);
+  //     // this.dataSource = new MatTableDataSource(this.data);
+  //     // this.dataSource.paginator = this.paginator;
+  //     if (res && !(res instanceof HttpErrorResponse)) {
+  //       console.log(this.data);
+  //       this.dataSource = new MatTableDataSource(this.data);
+  //       this.dataSource.paginator = this.paginator;
+  //     }
+  //   });
+  // }
 }

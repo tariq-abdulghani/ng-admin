@@ -1,6 +1,6 @@
 import { ViewContextService } from './view-context.service';
 
-export abstract class AbsctractAction {
+export abstract class AbstractAction {
   public icon: string;
   public title: string;
   protected ctxService: ViewContextService;

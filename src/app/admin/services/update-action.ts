@@ -6,11 +6,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { UpdateComponent } from '../views/update/update.component';
-import { AbsctractAction } from './absctract-action';
+import { AbstractAction } from './abstract-action';
 import { ViewContextService } from './view-context.service';
 
 @Injectable()
-export class UpdateAction extends AbsctractAction {
+export class UpdateAction extends AbstractAction {
   constructor(ctxService: ViewContextService, public dialog: MatDialog) {
     super(ctxService, '', 'create');
   }

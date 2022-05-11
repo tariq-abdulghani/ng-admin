@@ -3,18 +3,18 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { TableContext } from '../models/ui-contexts';
 import { CreateComponent } from '../views/create/create.component';
-import { AbsctractAction } from './absctract-action';
+import { AbstractAction } from './abstract-action';
 import { ViewContextService } from './view-context.service';
 
 @Injectable()
-export class CreateAction extends AbsctractAction {
+export class CreateAction extends AbstractAction {
   constructor(ctxService: ViewContextService, public dialog: MatDialog) {
     super(ctxService, '', 'add');
   }
 
   apply() {
     const dialogRef = this.dialog.open(CreateComponent, {
-      width: '70%',
+      width: '80%',
       height: 'fit-content',
       maxHeight: '80%',
       hasBackdrop: false,

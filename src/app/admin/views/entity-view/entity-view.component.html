@@ -10,8 +10,7 @@
       </mat-form-field>
 
       <button
-        mat-mini-fab
-        color="basic"
+        mat-icon-button
         aria-label="Example icon-button with heart icon"
         (click)="createAction.apply()"
       >
@@ -46,9 +45,9 @@
                 mat-icon-button
                 color="warn"
                 aria-label="Example icon button with a heart icon"
-                (click)="onDelete(element)"
+                (click)="deleteAction.apply(element)"
               >
-                <mat-icon>delete</mat-icon>
+                <mat-icon>{{ deleteAction.title }}</mat-icon>
               </button>
             </td>
           </ng-container>

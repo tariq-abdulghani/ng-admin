@@ -147,6 +147,27 @@ body {
   min-width: fit-content;
 }
 
+.d-form {
+  max-width: 100%;
+}
+
+.mat-dialog-container {
+  padding: 0 !important;
+}
+
+.d-form-container {
+  padding: 20px;
+}
+
+.example-spacer {
+  flex: 1 1 auto;
+}
+
+.d-form-container .d-buttons-row {
+  display: flex !important;
+  justify-content: end;
+  gap: 10px;
+}
 /* range */
 /* input[type="range"]::-webkit-slider-runnable-track {
       width: 100%;
