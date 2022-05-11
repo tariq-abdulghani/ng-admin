@@ -2,9 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, Type } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
-import { ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { EntityRegistry } from 'src/app/dynamic-form/core/services/entity-registry/entity-registry.service';
 import {
@@ -28,9 +25,12 @@ import { DeleteAction } from '../../services/delete-action';
   providers: [ViewContextService, CreateAction, UpdateAction, DeleteAction],
 })
 export class EntityViewComponent implements OnInit {
-  dataSource: MatTableDataSource<any> = new MatTableDataSource();
-
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  data: any[] = [];
+  entityName!: string;
+  links: CrudLink[] = [];
+  tableSpec!: TableSpec;
+  entityClass!: Type<any>;
+  idField!: string;
 
   constructor(
     private http: HttpClient,
@@ -43,21 +43,10 @@ export class EntityViewComponent implements OnInit {
     public deleteAction: DeleteAction
   ) {}
 
-  data: any[] = [];
-  displayedColumns: string[] = [];
-  entityName!: string;
-  links: CrudLink[] = [];
-  tableSpec!: TableSpec;
-  entityClass!: Type<any>;
-
   ngOnInit(): void {
     this.activatedRout.paramMap.subscribe((res) => {
       this.init(res.get('id'));
     });
-  }
-
-  getDisplayedColumns() {
-    return this.displayedColumns;
   }
 
   /**
@@ -72,8 +61,6 @@ export class EntityViewComponent implements OnInit {
     this.entityName = entityName || 'none';
     const entityClass = this.entityRegistry.get(this.entityName);
 
-    console.log(entityClass);
-
     if (entityClass) {
       this.entityClass = entityClass;
       const resourceSpec: WebResourceSpec = Reflect.getMetadata(
@@ -84,19 +71,16 @@ export class EntityViewComponent implements OnInit {
         this.links.push(link);
       });
 
-      console.log(this.links);
-
       const tableSpec: TableSpec = Reflect.getMetadata(
         TABLE_META_KEY,
         entityClass.prototype
       );
       this.tableSpec = tableSpec;
-      console.log(tableSpec);
-      this.displayedColumns = Array.of(...this.tableSpec.columns);
-      if (!tableSpec.actions || tableSpec.actions.length > 0) {
-        this.displayedColumns.push('actions');
-      }
 
+      tableSpec.menuBar = [this.createAction];
+      tableSpec.actions = [this.updateAction, this.deleteAction];
+
+      this.idField = Reflect.getMetadata(ID_META_KEY, this.entityClass) || 'id';
       this.loadData();
     }
   }
@@ -109,20 +93,19 @@ export class EntityViewComponent implements OnInit {
       .toPromise()
       .then((res) => {
         this.data = res as any;
-        this.dataSource = new MatTableDataSource(this.data);
-        this.dataSource.paginator = this.paginator;
       })
       .then((_) => {
         const ctx: TableContext = {
           entityLabel: this.entityName,
-          formEntity: null,
+          formEntity: this.entityClass,
           links: this.links,
-          idField: Reflect.getMetadata(ID_META_KEY, this.entityClass),
+          idField: this.idField,
           data: this.data,
         };
         this.viewCtxService.setTableContext(ctx);
         this.viewCtxService.contextChanges().subscribe((ctx) => {
           console.log('ctx changed', ctx);
+          this.data = ctx.data;
         });
       });
   }

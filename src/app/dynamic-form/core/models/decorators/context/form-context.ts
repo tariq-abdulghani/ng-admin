@@ -24,7 +24,7 @@ export function UpdateOverride(specs: OverridableProperties) {
 
 export function Id(specs: IdSpecs) {
   return function (target: any, propertyKey: string) {
-    console.log('target id', target);
+    // console.log('target id', target);
     Reflect.defineMetadata(ID_META_KEY, propertyKey, target);
     Reflect.defineMetadata(ID_META_KEY, specs, target, propertyKey);
   };

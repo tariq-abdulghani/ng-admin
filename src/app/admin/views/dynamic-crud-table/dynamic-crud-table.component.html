@@ -1,0 +1,59 @@
+<div class="container-fluid">
+  <div class="mat-elevation-z8">
+    <mat-toolbar color="basic">
+      <span>{{ title }}</span>
+      <span class="example-spacer"></span>
+
+      <mat-form-field appearance="standard">
+        <mat-label>Filter</mat-label>
+        <input matInput placeholder="Ex. ium" #input />
+      </mat-form-field>
+
+      <button
+        *ngFor="let menuItem of tableSpec.menuBar"
+        mat-icon-button
+        aria-label="Example icon-button with heart icon"
+        (click)="menuItem.apply()"
+      >
+        <mat-icon>{{ menuItem.title }}</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <table mat-table [dataSource]="dataSource">
+      <ng-container *ngFor="let col of getDisplayedColumns()">
+        <ng-container
+          matColumnDef="{{ col }}"
+          *ngIf="col != 'actions'; else actionsTemplate"
+        >
+          <th mat-header-cell *matHeaderCellDef>{{ col }}</th>
+          <td mat-cell *matCellDef="let element">{{ element[col] }}</td>
+        </ng-container>
+        <ng-template #actionsTemplate>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element">
+              <button
+                *ngFor="let action of tableSpec.actions"
+                mat-icon-button
+                color="primary"
+                aria-label="Example icon button with a heart icon"
+                (click)="action.apply(element)"
+              >
+                <mat-icon>{{ action.title }}</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+        </ng-template>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="getDisplayedColumns()"></tr>
+      <tr mat-row *matRowDef="let row; columns: getDisplayedColumns()"></tr>
+    </table>
+
+    <mat-paginator
+      [pageSizeOptions]="[5, 10, 20]"
+      showFirstLastButtons
+      aria-label="kkk"
+    >
+    </mat-paginator>
+  </div>
+</div>

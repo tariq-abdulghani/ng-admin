@@ -17,6 +17,7 @@ import { MatCardModule } from '@angular/material/card';
 import { UpdateComponent } from './views/update/update.component';
 import { DecoratorDrivenDynamicFormsModule } from '../dynamic-form/decorator-driven-dynamic-forms.module';
 import { CreateComponent } from './views/create/create.component';
+import { DynamicCrudTableComponent } from './views/dynamic-crud-table/dynamic-crud-table.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { CreateComponent } from './views/create/create.component';
     ConfirmComponent,
     UpdateComponent,
     CreateComponent,
+    DynamicCrudTableComponent,
   ],
   exports: [],
   imports: [

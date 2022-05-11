@@ -1,14 +1,10 @@
-table {
+/* table {
   width: 100%;
 }
 
 .example-spacer {
   flex: 1 1 auto;
 }
-
-/* .mat-form-field-appearance-fill .mat-form-field-infix {
-  padding: 0px !important;
-} */
 
 .container {
   padding: 30px;
@@ -20,5 +16,4 @@ table {
 
 .mat-form-field {
   font-size: 14px;
-  /* width: 100%; */
-}
+} */
