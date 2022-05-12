@@ -1,10 +1,10 @@
-import { CrudLink } from '../decorators/web-resource';
+import { CrudLink, EndPoint } from '../decorators/web-resource';
 
 export interface TableContext {
   entityLabel: string;
   formEntity: any;
   data: any[];
-  links: CrudLink[];
+  endPoints: EndPoint[];
   idField?: string;
   mediaType?: any;
   paginationInfo?: any;

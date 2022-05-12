@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { AbstractAction } from '../services/abstract-action';
+import { AbstractAction, BasicTableAction } from '../services/abstract-action';
 
 export const TABLE_META_KEY = Symbol('WebResource');
 export type Pagination = {
@@ -9,8 +9,8 @@ export type Pagination = {
 export type DynamicTableModel = {
   columns: ColumnSpec[];
   pagination?: Pagination;
-  menuBar?: AbstractAction[];
-  actions?: AbstractAction[];
+  menuBar?: BasicTableAction[];
+  actions?: BasicTableAction[];
   rowNgClass?: (row: any) => { [x: string]: boolean };
 };
 

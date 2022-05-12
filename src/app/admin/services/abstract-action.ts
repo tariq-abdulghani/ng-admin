@@ -1,6 +1,6 @@
 import { ViewContextService } from './view-context.service';
 
-export abstract class AbstractAction {
+export abstract class AbstractAction implements BasicTableAction {
   public icon: string;
   public title: string;
   protected ctxService: ViewContextService;
@@ -12,4 +12,11 @@ export abstract class AbstractAction {
 
   public abstract apply(): void;
   public abstract apply(value?: any): void;
+}
+
+export interface BasicTableAction {
+  icon: string;
+  title: string;
+  apply(): void;
+  apply(value?: any): void;
 }

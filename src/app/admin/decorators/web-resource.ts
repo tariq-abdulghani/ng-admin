@@ -1,10 +1,15 @@
 export const WEB_RESOURCE_META_KEY = Symbol('WebResource');
+export const GET_ALL = Symbol('getAll');
+export const CREATE = Symbol('create');
+export const UPDATE_BY_ID = Symbol('update by id');
+export const DELETE_BY_ID = Symbol('delete by id');
+
 export type CrudLink = {
   href?: string;
   rel: string;
   type: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 };
-export type WebResourceSpec = { name: string; links: CrudLink[] };
+export type WebResourceSpec = { name: string; endPoints: EndPoint[] };
 
 export function WebResource(specs: WebResourceSpec) {
   return function <T extends { new (...args: any[]): {} }>(constructor: T) {
@@ -13,16 +18,8 @@ export function WebResource(specs: WebResourceSpec) {
   };
 }
 
-// type EndPoint = {
-//   title: string;
-//   description: string;
-//   uri: string;
-//   uriContext: string;
-//   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-// };
-
-type ActionEndPoint = {
-  action: string;
+export type EndPoint = {
+  title: string | Symbol;
   description?: string;
   uri: string;
   uriContext: string;
@@ -30,9 +27,13 @@ type ActionEndPoint = {
 };
 
 export class EndPoints {
-  constructor(private endPoints: ActionEndPoint[]) {}
+  public static of(endPoints: EndPoint[]) {
+    return new EndPoints(endPoints);
+  }
 
-  getUri(action: string): string {
-    return '';
+  private constructor(private endPoints: EndPoint[]) {}
+
+  getEndPoint(action: string): EndPoint | undefined {
+    return this.endPoints.find((ep) => ep.title == action);
   }
 }

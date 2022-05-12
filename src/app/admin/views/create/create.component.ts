@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, InjectionToken, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { CREATE } from '../../decorators/web-resource';
 import { TableContext, RowContext } from '../../models/ui-contexts';
 export const TABLE_CONTEXT = new InjectionToken<TableContext>('table context');
 
@@ -24,8 +25,8 @@ export class CreateComponent implements OnInit {
 
   onSave(value?: any) {
     console.log('creating');
-    const getLink = this.ctx.links.find((link) => link.type == 'POST');
-    const uri = `${getLink?.href}/${getLink?.rel}`;
+    const endPoint = this.ctx.endPoints.find((ep) => ep.title == CREATE);
+    const uri = `${endPoint?.uri}/${endPoint?.uriContext}`;
     this.http
       .post(uri, value)
       .toPromise()

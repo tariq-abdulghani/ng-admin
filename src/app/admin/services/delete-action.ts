@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { DELETE_BY_ID } from '../decorators/web-resource';
 import { ConfirmSpecs } from '../models/confirm-specs';
 import { ConfirmComponent } from '../views/confirm/confirm.component';
 import { AbstractAction } from './abstract-action';
@@ -37,10 +38,8 @@ export class DeleteAction extends AbstractAction {
       .toPromise()
       .then((cv) => {
         if (cv) {
-          const getLink = this.ctxService
-            .getTableContext()
-            .links.find((link) => link.type == 'DELETE');
-          const uri = `${getLink?.href}/${getLink?.rel}/${
+          const endPoint = ctx.endPoints.find((ep) => ep.title == DELETE_BY_ID);
+          const uri = `${endPoint?.uri}/${endPoint?.uriContext}/${
             row[ctx.idField || 'id']
           }`;
           this.http

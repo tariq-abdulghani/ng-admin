@@ -1,5 +1,13 @@
 import { Table, TableSpec } from '../admin/decorators/table';
-import { CrudLink, WebResource } from '../admin/decorators/web-resource';
+import {
+  CREATE,
+  CrudLink,
+  DELETE_BY_ID,
+  EndPoint,
+  GET_ALL,
+  UPDATE_BY_ID,
+  WebResource,
+} from '../admin/decorators/web-resource';
 import { FormEntity } from '../dynamic-form/core/models/decorators/forms/forms';
 import { Nullable } from '../admin/utils/nullable';
 import {
@@ -11,26 +19,30 @@ import {
 import { Id } from '../dynamic-form/core/models/decorators/context/form-context';
 import { Required } from '../dynamic-form/core/models/decorators/validation/sync/required';
 
-const TODO_API: CrudLink[] = [
+const TODO_API: EndPoint[] = [
   {
-    rel: 'todos',
-    type: 'GET',
-    href: 'https://jsonplaceholder.typicode.com',
+    title: GET_ALL,
+    uri: 'https://jsonplaceholder.typicode.com',
+    uriContext: 'todos',
+    method: 'GET',
   },
   {
-    rel: 'todos',
-    type: 'POST',
-    href: 'https://jsonplaceholder.typicode.com',
+    title: CREATE,
+    uriContext: 'todos',
+    method: 'POST',
+    uri: 'https://jsonplaceholder.typicode.com',
   },
   {
-    rel: 'todos',
-    type: 'PUT',
-    href: 'https://jsonplaceholder.typicode.com',
+    title: UPDATE_BY_ID,
+    uriContext: 'todos',
+    method: 'PUT',
+    uri: 'https://jsonplaceholder.typicode.com',
   },
   {
-    rel: 'todos',
-    type: 'DELETE',
-    href: 'https://jsonplaceholder.typicode.com',
+    title: DELETE_BY_ID,
+    uriContext: 'todos',
+    method: 'DELETE',
+    uri: 'https://jsonplaceholder.typicode.com',
   },
 ];
 
@@ -44,7 +56,7 @@ const TODO_TABLE: TableSpec = {
 
 @WebResource({
   name: 'todo',
-  links: TODO_API,
+  endPoints: TODO_API,
 })
 @Table(TODO_TABLE)
 @FormEntity({ name: 'todo' })

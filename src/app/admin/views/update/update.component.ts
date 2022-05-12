@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { UPDATE_BY_ID } from '../../decorators/web-resource';
 import { RowContext } from '../../models/ui-contexts';
 
 @Component({
@@ -24,10 +25,11 @@ export class UpdateComponent implements OnInit {
 
   onSave(value?: any) {
     console.log('saving');
-    const getLink = this.ctx.links.find((link) => link.type == 'PUT');
-    const uri = `${getLink?.href}/${getLink?.rel}/${
+    const endPoint = this.ctx.endPoints.find((ep) => ep.title == UPDATE_BY_ID);
+    const uri = `${endPoint?.uri}/${endPoint?.uriContext}/${
       value[this.ctx.idField || 'id']
     }`;
+
     this.http
       .put(uri, value)
       .toPromise()

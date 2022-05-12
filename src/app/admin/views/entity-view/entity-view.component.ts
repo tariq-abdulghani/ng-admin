@@ -5,7 +5,8 @@ import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { EntityRegistry } from 'src/app/dynamic-form/core/services/entity-registry/entity-registry.service';
 import {
-  CrudLink,
+  EndPoint,
+  GET_ALL,
   WebResourceSpec,
   WEB_RESOURCE_META_KEY,
 } from '../../decorators/web-resource';
@@ -32,7 +33,7 @@ import { Subscription } from 'rxjs';
 export class EntityViewComponent implements OnInit, OnDestroy {
   data: any[] = [];
   entityName!: string;
-  links: CrudLink[] = [];
+  endPoints: EndPoint[] = [];
   tableModel!: DynamicTableModel;
   entityClass!: Type<any>;
   idField!: string;
@@ -74,8 +75,8 @@ export class EntityViewComponent implements OnInit, OnDestroy {
         WEB_RESOURCE_META_KEY,
         entityClass.prototype
       );
-      resourceSpec?.links.forEach((link) => {
-        this.links.push(link);
+      resourceSpec?.endPoints.forEach((endPoint) => {
+        this.endPoints.push(endPoint);
       });
 
       const tableSpec: TableSpec = Reflect.getMetadata(
@@ -91,8 +92,8 @@ export class EntityViewComponent implements OnInit, OnDestroy {
   }
 
   loadData() {
-    const getLink = this.links.find((link) => link.type == 'GET');
-    const uri = `${getLink?.href}/${getLink?.rel}`;
+    const endPoint = this.endPoints.find((ep) => ep.title == GET_ALL);
+    const uri = `${endPoint?.uri}/${endPoint?.uriContext}`;
     this.http
       .get(uri)
       .toPromise()
@@ -103,7 +104,7 @@ export class EntityViewComponent implements OnInit, OnDestroy {
         const ctx: TableContext = {
           entityLabel: this.entityName,
           formEntity: this.entityClass,
-          links: this.links,
+          endPoints: this.endPoints,
           idField: this.idField,
           data: this.data,
         };
