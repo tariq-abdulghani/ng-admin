@@ -1,29 +1,25 @@
-<!-- <h1 mat-dialog-title color="warn">
-  <mat-icon color="warn">warning</mat-icon>
-</h1> -->
-
 <mat-toolbar
   mat-dialog-title
   class="dialog-title d-flex justify-content-between"
   color="basic"
 >
-  <!-- <span>{{ ctx.entityLabel }}</span> -->
-  <mat-icon color="warn">warning</mat-icon>
+  <mat-icon class="confim-icon icon-display" color="warn">warning</mat-icon>
   <span class="example-spacer"></span>
-  <!-- <button mat-icon-button aria-label="close dialog" mat-dialog-close>
+  <button mat-icon-button aria-label="close dialog" mat-dialog-close>
     <mat-icon>close</mat-icon>
-  </button> -->
+  </button>
 </mat-toolbar>
 <div class="d-form-container">
   <div class="dialoge-content">
     <p>{{ confirmMessage || "are you sure?" }}</p>
   </div>
   <div class="d-buttons-row">
-    <button class="btn btn-secondary" (click)="onNoClick()">
-      {{ noLabel || "no" }}
-    </button>
     <button class="btn btn-secondary" [mat-dialog-close]="true" cdkFocusInitial>
       {{ yesLabel || "yes" }}
+    </button>
+
+    <button class="btn btn-secondary" (click)="onNoClick()">
+      {{ noLabel || "no" }}
     </button>
   </div>
 </div>

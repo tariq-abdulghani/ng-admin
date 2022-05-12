@@ -1,7 +1,6 @@
 import { Table, TableSpec } from '../admin/decorators/table';
 import {
   CREATE,
-  CrudLink,
   DELETE_BY_ID,
   EndPoint,
   GET_ALL,
