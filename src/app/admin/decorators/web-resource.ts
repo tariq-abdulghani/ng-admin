@@ -1,3 +1,6 @@
+import { Type } from '@angular/core';
+import { NgAdminCrudWebService } from '../services/crud.service';
+
 export const WEB_RESOURCE_META_KEY = Symbol('WebResource');
 export const GET_ALL = Symbol('getAll');
 export const CREATE = Symbol('create');
@@ -9,7 +12,11 @@ export type CrudLink = {
   rel: string;
   type: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 };
-export type WebResourceSpec = { name: string; endPoints: EndPoint[] };
+export type WebResourceSpec = {
+  name: string;
+  endPoints: EndPoint[];
+  provider?: Type<NgAdminCrudWebService>;
+};
 
 export function WebResource(specs: WebResourceSpec) {
   return function <T extends { new (...args: any[]): {} }>(constructor: T) {

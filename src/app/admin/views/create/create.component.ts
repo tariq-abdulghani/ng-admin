@@ -1,8 +1,8 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Inject, InjectionToken, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { CREATE } from '../../decorators/web-resource';
-import { TableContext, RowContext } from '../../models/ui-contexts';
+import { TableContext } from '../../models/ui-contexts';
+import { DefaultCrudService } from '../../services/crud.service';
 export const TABLE_CONTEXT = new InjectionToken<TableContext>('table context');
 
 @Component({
@@ -11,13 +11,12 @@ export const TABLE_CONTEXT = new InjectionToken<TableContext>('table context');
   styleUrls: ['./create.component.css'],
 })
 export class CreateComponent implements OnInit {
+  ctx!: TableContext;
   constructor(
     public dialogRef: MatDialogRef<any>,
-    private http: HttpClient,
-    @Inject(MAT_DIALOG_DATA) public data: TableContext
+    @Inject(MAT_DIALOG_DATA) public data: TableContext,
+    private crudService: DefaultCrudService
   ) {}
-
-  ctx!: TableContext;
 
   ngOnInit(): void {
     this.ctx = this.data;
@@ -25,20 +24,17 @@ export class CreateComponent implements OnInit {
 
   onSave(value?: any) {
     console.log('creating');
-    const endPoint = this.ctx.endPoints.find((ep) => ep.title == CREATE);
-    const uri = `${endPoint?.uri}/${endPoint?.uriContext}`;
-    this.http
-      .post(uri, value)
-      .toPromise()
+    this.crudService
+      .doCreate(this.ctx, value)
       .then((res) => {
         this.ctx.data?.push(res);
-        this.dialogRef.close(value);
+        this.dialogRef.close(res);
+      })
+      .catch((errRes) => {
+        const err = errRes as HttpErrorResponse;
+        console.log(err);
+        this.dialogRef.close(err);
       });
-    // .catch((errRes) => {
-    //   const err = errRes as HttpErrorResponse;
-    //   console.log(err);
-    //   this.dialogRef.close(err);
-    // });
   }
   onCancel(): void {
     this.dialogRef.close(false);

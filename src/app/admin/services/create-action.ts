@@ -1,7 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { EventEmitter, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { TableContext } from '../models/ui-contexts';
 import { CreateComponent } from '../views/create/create.component';
 import { AbstractAction } from './abstract-action';
 import { ViewContextService } from './view-context.service';
@@ -24,7 +23,6 @@ export class CreateAction extends AbstractAction {
 
     dialogRef.afterClosed().subscribe((res) => {
       if (res && !(res instanceof HttpErrorResponse)) {
-        // ctx.data.push(res);
         this.ctxService.setTableContext(ctx, true);
       }
     });

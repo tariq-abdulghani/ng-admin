@@ -5,6 +5,7 @@ import { DELETE_BY_ID } from '../decorators/web-resource';
 import { ConfirmSpecs } from '../models/confirm-specs';
 import { ConfirmComponent } from '../views/confirm/confirm.component';
 import { AbstractAction } from './abstract-action';
+import { DefaultCrudService } from './crud.service';
 import { ViewContextService } from './view-context.service';
 
 @Injectable()
@@ -12,7 +13,7 @@ export class DeleteAction extends AbstractAction {
   constructor(
     ctxService: ViewContextService,
     public dialog: MatDialog,
-    private http: HttpClient
+    private crudService: DefaultCrudService
   ) {
     super(ctxService, '', 'delete');
   }
@@ -38,20 +39,12 @@ export class DeleteAction extends AbstractAction {
       .toPromise()
       .then((cv) => {
         if (cv) {
-          const endPoint = ctx.endPoints.find((ep) => ep.title == DELETE_BY_ID);
-          const uri = `${endPoint?.uri}/${endPoint?.uriContext}/${
-            row[ctx.idField || 'id']
-          }`;
-          this.http
-            .delete(uri)
-            .toPromise()
-            .then((res) => {
-              // todo make sure to make the retuen really expresses the table context
-              ctx.data = ctx.data.filter(
-                (el) => el[ctx.idField || 'id'] != row[ctx.idField || 'id']
-              );
-              this.ctxService.setTableContext(ctx, true);
-            });
+          this.crudService.doDeleteById(ctx, row).then((res) => {
+            ctx.data = ctx.data.filter(
+              (el) => el[ctx.idField || 'id'] != row[ctx.idField || 'id']
+            );
+            this.ctxService.setTableContext(ctx, true);
+          });
         }
       });
   }

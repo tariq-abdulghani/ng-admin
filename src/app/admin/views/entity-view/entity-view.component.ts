@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, Injector, OnDestroy, OnInit, Type } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
@@ -6,7 +5,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { EntityRegistry } from 'src/app/dynamic-form/core/services/entity-registry/entity-registry.service';
 import {
   EndPoint,
-  GET_ALL,
   WebResourceSpec,
   WEB_RESOURCE_META_KEY,
 } from '../../decorators/web-resource';
@@ -23,6 +21,7 @@ import { CreateAction } from '../../services/create-action';
 import { UpdateAction } from '../../services/update-action';
 import { DeleteAction } from '../../services/delete-action';
 import { Subscription } from 'rxjs';
+import { DefaultCrudService } from '../../services/crud.service';
 
 @Component({
   selector: 'app-entity-view',
@@ -39,12 +38,12 @@ export class EntityViewComponent implements OnInit, OnDestroy {
   idField!: string;
   contextChangeSubscription!: Subscription;
   constructor(
-    private http: HttpClient,
     private activatedRout: ActivatedRoute,
     private injector: Injector,
     private entityRegistry: EntityRegistry,
     public dialog: MatDialog,
-    private viewCtxService: ViewContextService // public createAction: CreateAction, // public updateAction: UpdateAction, // public deleteAction: DeleteAction
+    private viewCtxService: ViewContextService,
+    private crudService: DefaultCrudService
   ) {}
 
   ngOnInit(): void {
@@ -92,29 +91,26 @@ export class EntityViewComponent implements OnInit, OnDestroy {
   }
 
   loadData() {
-    const endPoint = this.endPoints.find((ep) => ep.title == GET_ALL);
-    const uri = `${endPoint?.uri}/${endPoint?.uriContext}`;
-    this.http
-      .get(uri)
-      .toPromise()
+    const ctx: TableContext = {
+      entityLabel: this.entityName,
+      formEntity: this.entityClass,
+      endPoints: this.endPoints,
+      idField: this.idField,
+      data: this.data,
+    };
+    this.crudService
+      .doGetALL(ctx)
       .then((res) => {
         this.data = res as any;
+        ctx.data = res;
       })
       .then((_) => {
-        const ctx: TableContext = {
-          entityLabel: this.entityName,
-          formEntity: this.entityClass,
-          endPoints: this.endPoints,
-          idField: this.idField,
-          data: this.data,
-        };
         this.viewCtxService.setTableContext(ctx);
         if (!this.contextChangeSubscription) {
           this.contextChangeSubscription = this.viewCtxService
             .contextChanges()
             .subscribe((ctx) => {
               console.log('ctx changed', ctx);
-              // console.log(this.data == ctx.data);
               if (this.data == ctx.data) {
                 this.data = Array.of(...ctx.data);
               } else {
