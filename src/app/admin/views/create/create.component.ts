@@ -1,8 +1,19 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, Inject, InjectionToken, OnInit } from '@angular/core';
+import {
+  Component,
+  Inject,
+  InjectionToken,
+  Injector,
+  OnInit,
+  Type,
+} from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { WEB_SERVICE_META_KEY } from '../../decorators/web-resource';
 import { TableContext } from '../../models/ui-contexts';
-import { DefaultCrudService } from '../../services/crud.service';
+import {
+  DefaultCrudService,
+  NgAdminCrudWebService,
+} from '../../services/crud.service';
 export const TABLE_CONTEXT = new InjectionToken<TableContext>('table context');
 
 @Component({
@@ -12,14 +23,25 @@ export const TABLE_CONTEXT = new InjectionToken<TableContext>('table context');
 })
 export class CreateComponent implements OnInit {
   ctx!: TableContext;
+  private crudService!: NgAdminCrudWebService;
   constructor(
     public dialogRef: MatDialogRef<any>,
     @Inject(MAT_DIALOG_DATA) public data: TableContext,
-    private crudService: DefaultCrudService
+    private injector: Injector
   ) {}
 
   ngOnInit(): void {
     this.ctx = this.data;
+    const webServiceProvider: Type<any> = Reflect.getMetadata(
+      WEB_SERVICE_META_KEY,
+      this.ctx.formEntity.prototype
+    );
+    console.log('we', webServiceProvider, this.ctx);
+    if (webServiceProvider) {
+      this.crudService = this.injector.get(webServiceProvider);
+    } else {
+      this.crudService = this.injector.get(DefaultCrudService);
+    }
   }
 
   onSave(value?: any) {

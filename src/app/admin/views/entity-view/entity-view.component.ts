@@ -7,6 +7,7 @@ import {
   EndPoint,
   WebResourceSpec,
   WEB_RESOURCE_META_KEY,
+  WEB_SERVICE_META_KEY,
 } from '../../decorators/web-resource';
 import {
   DynamicTableModel,
@@ -21,7 +22,10 @@ import { CreateAction } from '../../services/create-action';
 import { UpdateAction } from '../../services/update-action';
 import { DeleteAction } from '../../services/delete-action';
 import { Subscription } from 'rxjs';
-import { DefaultCrudService } from '../../services/crud.service';
+import {
+  DefaultCrudService,
+  NgAdminCrudWebService,
+} from '../../services/crud.service';
 
 @Component({
   selector: 'app-entity-view',
@@ -37,13 +41,14 @@ export class EntityViewComponent implements OnInit, OnDestroy {
   entityClass!: Type<any>;
   idField!: string;
   contextChangeSubscription!: Subscription;
+  private crudService!: NgAdminCrudWebService;
+
   constructor(
     private activatedRout: ActivatedRoute,
     private injector: Injector,
     private entityRegistry: EntityRegistry,
     public dialog: MatDialog,
-    private viewCtxService: ViewContextService,
-    private crudService: DefaultCrudService
+    private viewCtxService: ViewContextService
   ) {}
 
   ngOnInit(): void {
@@ -69,6 +74,15 @@ export class EntityViewComponent implements OnInit, OnDestroy {
     const entityClass = this.entityRegistry.get(this.entityName);
 
     if (entityClass) {
+      const ctxInit: TableContext = {
+        entityLabel: this.entityName,
+        formEntity: entityClass,
+        endPoints: this.endPoints,
+        idField: this.idField,
+        data: this.data,
+      };
+      this.viewCtxService.setTableContext(ctxInit);
+
       this.entityClass = entityClass;
       const resourceSpec: WebResourceSpec = Reflect.getMetadata(
         WEB_RESOURCE_META_KEY,
@@ -86,6 +100,17 @@ export class EntityViewComponent implements OnInit, OnDestroy {
       this.getTableModel(tableSpec);
 
       this.idField = Reflect.getMetadata(ID_META_KEY, this.entityClass) || 'id';
+
+      const webServiceProvider: Type<any> = Reflect.getMetadata(
+        WEB_SERVICE_META_KEY,
+        entityClass.prototype
+      );
+
+      if (webServiceProvider) {
+        this.crudService = this.injector.get(webServiceProvider);
+      } else {
+        this.crudService = this.injector.get(DefaultCrudService);
+      }
       this.loadData();
     }
   }

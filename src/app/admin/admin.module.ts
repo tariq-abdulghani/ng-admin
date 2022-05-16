@@ -19,6 +19,7 @@ import { DecoratorDrivenDynamicFormsModule } from '../dynamic-form/decorator-dri
 import { CreateComponent } from './views/create/create.component';
 import { DynamicCrudTableComponent } from './views/dynamic-crud-table/dynamic-crud-table.component';
 import { DefaultCrudService } from './services/crud.service';
+import { ToDoService } from '../demo/todo.service';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,6 @@ import { DefaultCrudService } from './services/crud.service';
     MatCardModule,
     DecoratorDrivenDynamicFormsModule,
   ],
-  providers: [DefaultCrudService],
+  providers: [DefaultCrudService, ToDoService],
 })
 export class AdminModule {}

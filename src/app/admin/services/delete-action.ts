@@ -1,21 +1,33 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, Injector, Type } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { DELETE_BY_ID } from '../decorators/web-resource';
+import { DELETE_BY_ID, WEB_SERVICE_META_KEY } from '../decorators/web-resource';
 import { ConfirmSpecs } from '../models/confirm-specs';
 import { ConfirmComponent } from '../views/confirm/confirm.component';
 import { AbstractAction } from './abstract-action';
-import { DefaultCrudService } from './crud.service';
+import { DefaultCrudService, NgAdminCrudWebService } from './crud.service';
 import { ViewContextService } from './view-context.service';
 
 @Injectable()
 export class DeleteAction extends AbstractAction {
+  private crudService!: NgAdminCrudWebService;
   constructor(
     ctxService: ViewContextService,
     public dialog: MatDialog,
-    private crudService: DefaultCrudService
+    private injector: Injector
   ) {
     super(ctxService, '', 'delete');
+    console.log(ctxService.getTableContext(), ctxService);
+    const webServiceProvider: Type<any> = Reflect.getMetadata(
+      WEB_SERVICE_META_KEY,
+      ctxService.getTableContext().formEntity.prototype
+    );
+    console.log('delete action', webServiceProvider);
+    if (webServiceProvider) {
+      this.crudService = this.injector.get(webServiceProvider);
+    } else {
+      this.crudService = this.injector.get(DefaultCrudService);
+    }
   }
 
   apply(row?: any) {

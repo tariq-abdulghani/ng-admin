@@ -2,6 +2,8 @@ import { Type } from '@angular/core';
 import { NgAdminCrudWebService } from '../services/crud.service';
 
 export const WEB_RESOURCE_META_KEY = Symbol('WebResource');
+export const WEB_SERVICE_META_KEY = Symbol('WebService');
+
 export const GET_ALL = Symbol('getAll');
 export const CREATE = Symbol('create');
 export const UPDATE_BY_ID = Symbol('update by id');
@@ -15,12 +17,23 @@ export type CrudLink = {
 export type WebResourceSpec = {
   name: string;
   endPoints: EndPoint[];
-  provider?: Type<NgAdminCrudWebService>;
 };
+//provider?: Type<NgAdminCrudWebService>;
 
 export function WebResource(specs: WebResourceSpec) {
   return function <T extends { new (...args: any[]): {} }>(constructor: T) {
     Reflect.defineMetadata(WEB_RESOURCE_META_KEY, specs, constructor.prototype);
+    return class extends constructor {};
+  };
+}
+
+export function WebService(provider: Type<NgAdminCrudWebService>) {
+  return function <T extends { new (...args: any[]): {} }>(constructor: T) {
+    Reflect.defineMetadata(
+      WEB_SERVICE_META_KEY,
+      provider,
+      constructor.prototype
+    );
     return class extends constructor {};
   };
 }
