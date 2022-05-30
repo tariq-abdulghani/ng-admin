@@ -47,16 +47,16 @@ import { FormEntityProcessorService } from './core/services/form-entity-processo
   ],
   // providers: [FormEntityProcessorService, EntityRegistry],
 })
-export class DecoratorDrivenDynamicFormsModule {
+export class DynamicFormModule {
   public static scan(
     entities: Type<any>[]
-  ): ModuleWithProviders<DecoratorDrivenDynamicFormsModule> {
+  ): ModuleWithProviders<DynamicFormModule> {
     entities.forEach((entity) => {
       const name = FormMetaData.get(entity.prototype).get('name');
       EntityRegistry.add(name, entity);
     });
     return {
-      ngModule: DecoratorDrivenDynamicFormsModule,
+      ngModule: DynamicFormModule,
       providers: [FormEntityProcessorService, EntityRegistry],
     };
   }

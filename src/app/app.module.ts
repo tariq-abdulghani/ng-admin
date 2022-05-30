@@ -6,7 +6,7 @@ import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { AdminModule } from './admin/admin.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { DecoratorDrivenDynamicFormsModule } from './dynamic-form/decorator-driven-dynamic-forms.module';
+import { DynamicFormModule } from './dynamic-form/dynamic-form.module';
 import { Todo } from './demo/todo';
 
 @NgModule({
@@ -16,7 +16,7 @@ import { Todo } from './demo/todo';
     AppRoutingModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    DecoratorDrivenDynamicFormsModule.scan([Todo]),
+    DynamicFormModule.scan([Todo]),
     AdminModule,
   ],
   exports: [],

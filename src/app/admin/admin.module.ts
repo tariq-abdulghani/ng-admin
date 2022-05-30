@@ -15,7 +15,7 @@ import { ConfirmComponent } from './views/confirm/confirm.component';
 
 import { MatCardModule } from '@angular/material/card';
 import { UpdateComponent } from './views/update/update.component';
-import { DecoratorDrivenDynamicFormsModule } from '../dynamic-form/decorator-driven-dynamic-forms.module';
+import { DynamicFormModule } from '../dynamic-form/dynamic-form.module';
 import { CreateComponent } from './views/create/create.component';
 import { DynamicCrudTableComponent } from './views/dynamic-crud-table/dynamic-crud-table.component';
 import { DefaultCrudService } from './services/crud.service';
@@ -40,7 +40,7 @@ import { DefaultCrudService } from './services/crud.service';
     MatInputModule,
     MatDialogModule,
     MatCardModule,
-    DecoratorDrivenDynamicFormsModule,
+    DynamicFormModule,
   ],
   providers: [DefaultCrudService],
 })
