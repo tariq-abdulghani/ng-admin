@@ -6,6 +6,7 @@ import {
   GET_ALL,
   UPDATE_BY_ID,
   WebResource,
+  WebService,
 } from '../admin/decorators/web-resource';
 import { FormEntity } from '../dynamic-form/core/models/decorators/forms/forms';
 import { Nullable } from '../admin/utils/nullable';
@@ -17,6 +18,7 @@ import {
 } from '../dynamic-form/core/models/decorators/inputs/inputs';
 import { Id } from '../dynamic-form/core/models/decorators/context/form-context';
 import { Required } from '../dynamic-form/core/models/decorators/validation/sync/required';
+import { ToDoService } from './todo.service';
 
 const TODO_API: EndPoint[] = [
   {
@@ -53,6 +55,7 @@ const TODO_TABLE: TableSpec = {
   ],
 };
 
+// @WebService(ToDoService)
 @WebResource({
   name: 'todo',
   endPoints: TODO_API,
