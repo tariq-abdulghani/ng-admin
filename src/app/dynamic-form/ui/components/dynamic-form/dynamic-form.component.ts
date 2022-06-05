@@ -11,7 +11,9 @@ import {
   SimpleChanges,
   TemplateRef,
 } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { UseContext } from 'src/app/dynamic-form/core/models/decorators/context/form-context';
+import { FormController } from 'src/app/dynamic-form/core/models/types/inputs/form-controller';
 import { FormValueTransformer } from '../../../core/models/types/forms/form-value-transformer';
 import { InputNode } from '../../../core/models/types/inputs/input-node';
 import { EntityRegistry } from '../../../core/services/entity-registry/entity-registry.service';
@@ -26,7 +28,9 @@ import { InputTemplateDirective } from '../../directives/input-template/input-te
   styleUrls: ['./dynamic-form.component.css'],
   providers: [DynamicFormContextService],
 })
-export class DynamicFormComponent implements OnInit, AfterContentInit {
+export class DynamicFormComponent
+  implements OnInit, AfterContentInit, FormController
+{
   inputTree!: InputNode;
   formEntity!: any;
   @Input('entityName') entityName!: string;
@@ -52,6 +56,7 @@ export class DynamicFormComponent implements OnInit, AfterContentInit {
     private dynamicFormContextService: DynamicFormContextService,
     private entityRegistry: EntityRegistry
   ) {}
+
   ngAfterContentInit(): void {
     console.log('buttonTemplateQueryList', this.buttonTemplateQueryList);
     this.inputTemplateQueryList.forEach((item) => {
@@ -129,5 +134,51 @@ export class DynamicFormComponent implements OnInit, AfterContentInit {
         ?.sort((a, b) => a.getProperty('order') - b.getProperty('order'));
       inputNode.getChildren()?.forEach((child) => this.applySort(child));
     }
+  }
+
+  markAllAsTouched(): void {
+    this.inputTree.getControl()?.markAllAsTouched();
+  }
+  markAsTouched(path: string): void {
+    throw new Error('Method not implemented.');
+  }
+  markAsInvalid(
+    path?: string,
+    errConfig?: { errName: string; errMessage: string }
+  ): void {
+    throw new Error('Method not implemented.');
+  }
+  markFieldAsInvalid(
+    path: string,
+    errConfig: { errName: string; errMessage: string }
+  ): void {
+    throw new Error('Method not implemented.');
+  }
+  disable(path: string): void {
+    throw new Error('Method not implemented.');
+  }
+  enable(path: string): void {
+    throw new Error('Method not implemented.');
+  }
+  setReadonly(path: string): void {
+    throw new Error('Method not implemented.');
+  }
+  unsetReadonly(path: string): void {
+    throw new Error('Method not implemented.');
+  }
+  getRowValue() {
+    return (this.inputTree.getControl() as FormGroup).getRawValue();
+  }
+  getValue() {
+    return (this.inputTree.getControl() as FormGroup).value;
+  }
+  fireAction(id: string): void {
+    throw new Error('Method not implemented.');
+  }
+  reset(value?: any, emitEvent?: boolean): void {
+    this.inputTree.getControl().reset(value || {}, { emitEvent: emitEvent });
+  }
+  getName(): string {
+    return this.entityName;
   }
 }

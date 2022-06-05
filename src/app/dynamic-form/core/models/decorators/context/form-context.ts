@@ -4,6 +4,8 @@ export type UseContext = 'CREATE' | 'UPDATE' | 'NONE' | 'SEARCH' | 'PATCH';
 export const ID_META_KEY = Symbol('Id');
 export const ON_UPDATE_META_KEY = Symbol('OnUpdate');
 
+export const USE_CONTEXT_META_KEY = Symbol('USE_CONTEXT_META');
+
 export type IdSpecs = {
   generate: 'INPUT' | 'SERVER'; // if input input will appear when form is used to create the entity else will not appear
   //   update: 'INPUT' | 'READ_ONLY';
@@ -27,5 +29,12 @@ export function Id(specs: IdSpecs) {
     // console.log('target id', target);
     Reflect.defineMetadata(ID_META_KEY, propertyKey, target);
     Reflect.defineMetadata(ID_META_KEY, specs, target, propertyKey);
+  };
+}
+
+// todo do it
+export function UseContext(ctx: string) {
+  return function (target: any, propertyKey: string) {
+    Reflect.defineMetadata(USE_CONTEXT_META_KEY, ctx, target, propertyKey);
   };
 }
