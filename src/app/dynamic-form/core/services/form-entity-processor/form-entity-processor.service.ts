@@ -15,6 +15,7 @@ import {
   IdSpecs,
   ID_META_KEY,
   ON_UPDATE_META_KEY,
+  USE_CONTEXT_META_KEY,
 } from '../../models/decorators/context/form-context';
 import 'reflect-metadata';
 
@@ -199,6 +200,13 @@ export class FormEntityProcessorService {
 
     const childInputs = [] as InputNode[];
     for (const key in entity) {
+      // work on specific context only
+      const ctx = Reflect.getMetadata(USE_CONTEXT_META_KEY, entity, key);
+      if (ctx && context && context != ctx) {
+        console.log('ctx ', ctx, 'context ', context);
+        continue;
+      }
+
       const properties = InputsMetaData.get(entity, key);
       if (properties && properties?.get('inputType') != InputTypes.COMPOSITE) {
         const idSpecs: IdSpecs = Reflect.getMetadata(ID_META_KEY, entity, key);

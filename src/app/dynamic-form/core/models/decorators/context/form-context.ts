@@ -1,6 +1,12 @@
 import 'reflect-metadata';
 
-export type UseContext = 'CREATE' | 'UPDATE' | 'NONE' | 'SEARCH' | 'PATCH';
+export type UseContext =
+  | 'CREATE'
+  | 'UPDATE'
+  | 'NONE'
+  | 'SEARCH'
+  | 'PATCH'
+  | string;
 export const ID_META_KEY = Symbol('Id');
 export const ON_UPDATE_META_KEY = Symbol('OnUpdate');
 

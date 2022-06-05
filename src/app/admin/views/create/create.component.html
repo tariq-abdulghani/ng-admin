@@ -18,12 +18,7 @@
   </button>
 </mat-toolbar>
 <div class="d-form-container">
-  <d-form
-    #df
-    [entityName]="'todo'"
-    [useContext]="'CREATE'"
-    (submitEvent)="onSave($event)"
-  >
+  <d-form entityName="todo" useContext="CREATE" (submitEvent)="onSave($event)">
     <!-- <button *dfButton class="btn btn-secondary" type="submit">save</button>
     <button
       *dfButton

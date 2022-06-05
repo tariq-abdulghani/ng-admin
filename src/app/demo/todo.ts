@@ -16,7 +16,10 @@ import {
   SelectInput,
   TextInput,
 } from '../dynamic-form/core/models/decorators/inputs/inputs';
-import { Id } from '../dynamic-form/core/models/decorators/context/form-context';
+import {
+  Id,
+  UseContext,
+} from '../dynamic-form/core/models/decorators/context/form-context';
 import { Required } from '../dynamic-form/core/models/decorators/validation/sync/required';
 import { ToDoService } from './todo.service';
 
@@ -63,7 +66,8 @@ const TODO_TABLE: TableSpec = {
 @Table(TODO_TABLE)
 @FormEntity({ name: 'todo' })
 export class Todo {
-  @Id({ generate: 'SERVER' })
+  @UseContext('UPDATE')
+  // @Id({ generate: 'SERVER' })
   @NumberInput({
     id: 'todo-id',
     name: 'id',
@@ -93,6 +97,7 @@ export class Todo {
   })
   title: Nullable<string> = null;
 
+  @UseContext('UPDATE')
   @CheckboxInput({
     id: 'completed',
     name: 'completed',
