@@ -20,8 +20,7 @@ import 'reflect-metadata';
 export class FormEntityProcessorService {
   constructor(private injector: Injector) {}
   public process(formEntity: any, context?: UseContext): InputNode {
-    // const node = this.createNode(formEntity) as InputNode;
-    const node = this.createContextualNode(formEntity, context || 'NONE');
+    const node = this.createContextualNode(formEntity, context || '');
     // subscribe to enable or disable controls
     node?.getControl()!.valueChanges.subscribe((formValue) => {
       node!.getChildren()?.forEach((d) => {
@@ -74,6 +73,7 @@ export class FormEntityProcessorService {
           entity[key], //initialize
           validators
         );
+        // todo split that code into sub routines to make it readable more and maintainable
         // async validation
         const asyncValAndError = AsyncValidationMeta.getValidatorsAndErrorMap(
           entity,
