@@ -28,13 +28,11 @@ export class FormEntityProcessorService {
         if (d.getProperty('enableFn')) {
           switch (d.getProperty('enableFn')(formValue)) {
             case true:
-              //@ts-ignore
-              d!.getControl?.enable({ emitEvent: false });
+              d!.getControl()?.enable({ emitEvent: false });
               break;
 
             case false:
-              //@ts-ignore
-              d!.getControl?.disable({ emitEvent: false });
+              d!.getControl()?.disable({ emitEvent: false });
               break;
           }
         }
