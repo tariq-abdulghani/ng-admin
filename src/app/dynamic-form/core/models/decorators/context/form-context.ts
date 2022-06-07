@@ -8,14 +8,8 @@ export type UseContext =
   | 'PATCH'
   | string;
 export const ID_META_KEY = Symbol('Id');
-export const ON_UPDATE_META_KEY = Symbol('OnUpdate');
 
 export const USE_CONTEXT_META_KEY = Symbol('USE_CONTEXT_META');
-
-export type IdSpecs = {
-  generate: 'INPUT' | 'SERVER'; // if input input will appear when form is used to create the entity else will not appear
-  //   update: 'INPUT' | 'READ_ONLY';
-};
 
 export type OverridableProperties = {
   readonly?: boolean;
@@ -24,17 +18,10 @@ export type OverridableProperties = {
   [x: string]: any;
 };
 
-export function UpdateOverride(specs: OverridableProperties) {
-  return function (target: any, propertyKey: string) {
-    Reflect.defineMetadata(ON_UPDATE_META_KEY, specs, target, propertyKey);
-  };
-}
-
-export function Id(specs: IdSpecs) {
+export function Id() {
   return function (target: any, propertyKey: string) {
     // console.log('target id', target);
     Reflect.defineMetadata(ID_META_KEY, propertyKey, target);
-    Reflect.defineMetadata(ID_META_KEY, specs, target, propertyKey);
   };
 }
 
