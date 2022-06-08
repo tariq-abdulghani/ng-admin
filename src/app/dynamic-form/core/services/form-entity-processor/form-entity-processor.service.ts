@@ -19,6 +19,13 @@ import 'reflect-metadata';
 @Injectable()
 export class FormEntityProcessorService {
   constructor(private injector: Injector) {}
+
+  /**
+   *
+   * @param formEntity instance of class annotated with FormEntity
+   * @param context string represents form usage
+   * @returns InputNode
+   */
   public process(formEntity: any, context?: UseContext): InputNode {
     const node = this.createContextualNode(formEntity, context || '');
     // subscribe to enable or disable controls
@@ -40,6 +47,13 @@ export class FormEntityProcessorService {
     return node;
   }
 
+  /**
+   *
+   * @param entity  instance of class annotated with FormEntity
+   * @param context string represents form usage
+   * @param parentProperties Map<sting, any> parent form properties used to inherit some parent properties
+   * @returns
+   */
   private createContextualNode(
     entity: any,
     context: UseContext,
@@ -63,44 +77,49 @@ export class FormEntityProcessorService {
       const properties = InputsMetaData.get(entity, key);
       if (properties && properties?.get('inputType') != InputTypes.COMPOSITE) {
         // console.log('generate as input so its here what ever context is ');
-        const { validators, errorMap } =
-          ValidationsMetaData.getValidatorsAndErrorMap(entity, key);
+        // const { validators, errorMap } =
+        //   ValidationsMetaData.getValidatorsAndErrorMap(entity, key);
 
-        if (validators.includes(Validators.required)) {
-          properties.set('required', true); // if required set required attribute
-        }
-        const formControl = new FormControl(
-          entity[key], //initialize
-          validators
-        );
-        // todo split that code into sub routines to make it readable more and maintainable
-        // async validation
-        const asyncValAndError = AsyncValidationMeta.getValidatorsAndErrorMap(
+        // if (validators.includes(Validators.required)) {
+        //   properties.set('required', true); // if required set required attribute
+        // }
+        // const formControl = new FormControl(
+        //   entity[key], //initialize
+        //   validators
+        // );
+        // // todo split that code into sub routines to make it readable more and maintainable
+        // // async validation
+        // const asyncValAndError = AsyncValidationMeta.getValidatorsAndErrorMap(
+        //   entity,
+        //   key
+        // );
+        // // console.log(asyncValAndError);
+        // asyncValAndError.validators.forEach((asyncVal) => {
+        //   // console.log(asyncVal);
+        //   //@ts-ignore
+        //   if (asyncVal?.provider) {
+        //     const injValidator = this.injector.get(
+        //       //@ts-ignore
+        //       asyncVal?.provider
+        //     );
+        //     // console.log('async validation processing', injValidator);
+        //     formControl.addAsyncValidators(injValidator.validate);
+        //     // formControl.updateValueAndValidity();
+        //   } else if (asyncVal.validate) {
+        //     formControl.addAsyncValidators(asyncVal.validate);
+        //   } else if (typeof asyncVal == 'function') {
+        //     formControl.addAsyncValidators(asyncVal);
+        //   }
+        // });
+        // asyncValAndError.errorMap.forEach((value, key) => {
+        //   errorMap.set(key, value);
+        // });
+        const { control, errorMap } = this.processValidation(
           entity,
-          key
+          key,
+          properties
         );
-        // console.log(asyncValAndError);
-        asyncValAndError.validators.forEach((asyncVal) => {
-          // console.log(asyncVal);
-          //@ts-ignore
-          if (asyncVal?.provider) {
-            const injValidator = this.injector.get(
-              //@ts-ignore
-              asyncVal?.provider
-            );
-            // console.log('async validation processing', injValidator);
-            formControl.addAsyncValidators(injValidator.validate);
-            // formControl.updateValueAndValidity();
-          } else if (asyncVal.validate) {
-            formControl.addAsyncValidators(asyncVal.validate);
-          } else if (typeof asyncVal == 'function') {
-            formControl.addAsyncValidators(asyncVal);
-          }
-        });
-        asyncValAndError.errorMap.forEach((value, key) => {
-          errorMap.set(key, value);
-        });
-        const inputNode = new InputNodeImpl(properties, formControl, errorMap);
+        const inputNode = new InputNodeImpl(properties, control, errorMap);
         // console.log(inputNode);
         childInputs.push(inputNode);
         // todo make sure u dont need the binding code before removing it
@@ -137,12 +156,121 @@ export class FormEntityProcessorService {
         }
 
         childInputs.push(nestedFormNode);
-        // todo make sure u dont need the binding code before removing it
-        // this.bindEntityToInputTree(entity, key, nestedFormEntity);
       }
     }
 
     // update strategy
+    // let updateOn: 'change' | 'blur' | 'submit';
+    // switch (formProperties.get('updateStrategy') as UpdateStrategy) {
+    //   case UpdateStrategy.ON_PLUR:
+    //     updateOn = 'blur';
+    //     break;
+
+    //   case UpdateStrategy.ON_SUBMIT:
+    //     updateOn = 'submit';
+    //     break;
+
+    //   default:
+    //     updateOn = 'change';
+    //     break;
+    // }
+
+    let updateOn = this.getUpdateStrategy(formProperties) as
+      | 'change'
+      | 'blur'
+      | 'submit';
+
+    // const fomGroupInitializer: { [x: string]: any } = {};
+    // childInputs.forEach((inputNode) => {
+    //   fomGroupInitializer[inputNode.getProperty('name')] =
+    //     inputNode.getControl();
+    // });
+
+    // const formNode: InputNode = new InputNodeImpl(
+    //   formProperties,
+    //   new FormGroup(fomGroupInitializer, { updateOn: updateOn }),
+    //   new Map()
+    // );
+    const formNode: InputNode = this.composeForm(
+      childInputs,
+      formProperties,
+      updateOn
+    );
+    formNode.addChildren(childInputs);
+    // cross validation //
+    this.processCrossValidation(entity, formNode);
+    // const crossValidators = CrossValidationMeta.get(entity);
+    // if (crossValidators && crossValidators.length > 0) {
+    //   crossValidators.forEach((cv) => {
+    //     formNode.getControl().addValidators([cv.validatorFn]);
+    //     formNode.getControl().updateValueAndValidity();
+    //   });
+    // }
+
+    // crossValidators?.forEach((validator) => {
+    //   validator.effects.forEach((effect) => {
+    //     const relatedInput = formNode
+    //       .getChildren()
+    //       ?.find((i) => i.getProperty('name') == effect.input);
+
+    //     relatedInput?.addError(validator.errorName, effect.message);
+    //   });
+    // });
+    return formNode;
+  }
+
+  /**
+   *
+   * @param entity instance of class with FormEntity annotation
+   * @param key  string property name
+   * @param properties properties map
+   * @returns ` { control: FormControl; errorMap: Map<string, any> }`
+   */
+  private processValidation(
+    entity: any,
+    key: string,
+    properties: Map<string, any>
+  ): { control: FormControl; errorMap: Map<string, any> } {
+    const { validators, errorMap } =
+      ValidationsMetaData.getValidatorsAndErrorMap(entity, key);
+
+    // if required set required attribute
+    if (validators.includes(Validators.required)) {
+      properties.set('required', true);
+    }
+    const formControl = new FormControl(
+      entity[key], //initialize
+      validators
+    );
+
+    // async validation
+    const asyncValAndError = AsyncValidationMeta.getValidatorsAndErrorMap(
+      entity,
+      key
+    );
+    asyncValAndError.validators.forEach((asyncVal) => {
+      if (asyncVal?.provider) {
+        const injValidator = this.injector.get(asyncVal?.provider);
+        formControl.addAsyncValidators(injValidator.validate);
+      } else if (asyncVal.validate) {
+        formControl.addAsyncValidators(asyncVal.validate);
+      } else if (typeof asyncVal == 'function') {
+        formControl.addAsyncValidators(asyncVal);
+      }
+    });
+    asyncValAndError.errorMap.forEach((value, key) => {
+      errorMap.set(key, value);
+    });
+
+    return { control: formControl, errorMap: errorMap };
+  }
+
+  /**
+   *
+   * @param formProperties `Map<string, any>`
+   * @returns 'change' | 'blur' | 'submit'
+   */
+  private getUpdateStrategy(formProperties: Map<string, any>): string {
     let updateOn: 'change' | 'blur' | 'submit';
     switch (formProperties.get('updateStrategy') as UpdateStrategy) {
       case UpdateStrategy.ON_PLUR:
@@ -157,7 +285,21 @@ export class FormEntityProcessorService {
         updateOn = 'change';
         break;
     }
+    return updateOn;
+  }
 
+  /**
+   *
+   * @param childInputs
+   * @param properties
+   * @param updateOn
+   * @returns
+   */
+  private composeForm(
+    childInputs: InputNode[],
+    properties: Map<string, any>,
+    updateOn: any
+  ): InputNode {
     const fomGroupInitializer: { [x: string]: any } = {};
     childInputs.forEach((inputNode) => {
       fomGroupInitializer[inputNode.getProperty('name')] =
@@ -165,12 +307,19 @@ export class FormEntityProcessorService {
     });
 
     const formNode: InputNode = new InputNodeImpl(
-      formProperties,
+      properties,
       new FormGroup(fomGroupInitializer, { updateOn: updateOn }),
       new Map()
     );
-    formNode.addChildren(childInputs);
-    // cross validation //
+    return formNode;
+  }
+
+  /**
+   *
+   * @param entity
+   * @param formNode
+   */
+  private processCrossValidation(entity: any, formNode: InputNode): void {
     const crossValidators = CrossValidationMeta.get(entity);
     if (crossValidators && crossValidators.length > 0) {
       crossValidators.forEach((cv) => {
@@ -188,6 +337,5 @@ export class FormEntityProcessorService {
         relatedInput?.addError(validator.errorName, effect.message);
       });
     });
-    return formNode;
   }
 }

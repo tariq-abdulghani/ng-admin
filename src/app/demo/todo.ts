@@ -76,7 +76,7 @@ export class Todo {
   })
   id: Nullable<number> = null;
 
-  @Required({ message: 'field is mandatory' })
+  @Required({ message: 'user is mandatory' })
   @SelectInput({
     id: 'user-id',
     name: 'userId',
@@ -88,7 +88,7 @@ export class Todo {
   })
   userId: Nullable<number> = null;
 
-  @Required({ message: 'field is mandatory' })
+  @Required({ message: 'title is mandatory' })
   @TextInput({
     id: 'title',
     name: 'title',
