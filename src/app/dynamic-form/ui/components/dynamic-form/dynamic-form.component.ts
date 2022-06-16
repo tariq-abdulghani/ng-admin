@@ -12,8 +12,6 @@ import {
   TemplateRef,
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { UseContext } from 'src/app/dynamic-form/core/models/decorators/context/form-context';
-import { FormController } from 'src/app/dynamic-form/core/models/types/inputs/form-controller';
 import { FormValueTransformer } from '../../../core/models/types/forms/form-value-transformer';
 import { InputNode } from '../../../core/models/types/inputs/input-node';
 import { EntityRegistry } from '../../../core/services/entity-registry/entity-registry.service';
@@ -21,6 +19,8 @@ import { DynamicFormContextService } from '../../../core/services/form-context/d
 import { FormEntityProcessorService } from '../../../core/services/form-entity-processor/form-entity-processor.service';
 import { ButtonTemplateDirective } from '../../directives/button-template/button-template.directive';
 import { InputTemplateDirective } from '../../directives/input-template/input-template.directive';
+import {UseContext} from "../../../core/models/decorators/context/form-context";
+import {FormController} from "../../../core/models/types/inputs/form-controller";
 
 @Component({
   selector: 'd-form',
@@ -38,6 +38,7 @@ export class DynamicFormComponent
   @Input('useContext') useContext!: UseContext;
   @Input('valueTransformer')
   valueTransformer?: FormValueTransformer<any, any>;
+  @Input('includeDisabled') includeDisabled = false;
   @Output('submitEvent') submitEvent: EventEmitter<any> =
     new EventEmitter<any>();
   @Output('changeEvent') changEvent: EventEmitter<any> =
@@ -120,9 +121,16 @@ export class DynamicFormComponent
   }
 
   get formValue() {
-    return this.valueTransformer
-      ? this.valueTransformer.transform(this.inputTree.getControl().value)
-      : this.inputTree.getControl().value;
+    if(this.includeDisabled){
+      return this.valueTransformer
+        ? this.valueTransformer.transform((this.inputTree.getControl() as FormGroup).getRawValue())
+        : (this.inputTree.getControl() as FormGroup).getRawValue();
+    }else{
+      return this.valueTransformer
+        ? this.valueTransformer.transform(this.inputTree.getControl().value)
+        : this.inputTree.getControl().value;
+    }
+
   }
 
   applySort(inputNode: InputNode) {
@@ -178,7 +186,14 @@ export class DynamicFormComponent
   reset(value?: any, emitEvent?: boolean): void {
     this.inputTree.getControl().reset(value || {}, { emitEvent: emitEvent });
   }
+  patch(value?: any, emitEvent?: boolean): void{
+    this.inputTree.getControl().reset({...this.inputTree.getControl().value, ...value}, { emitEvent: emitEvent });
+  }
   getName(): string {
     return this.entityName;
+  }
+
+  isValid(): boolean {
+    return this.inputTree.getControl().valid;
   }
 }

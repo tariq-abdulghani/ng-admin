@@ -8,7 +8,7 @@
 1. no need for manual construction for form entity its injected now
 2. added new interface FormController to enable us to manage form state
 3. added form context variable to use the same form many times with different contexts
-4. added order attribute, so we can order elements in the view 
+4. added order attribute, so we can order elements in the view
 
 ## Project Goals
 
@@ -27,7 +27,7 @@
 
 7. opinionated based on commons and defaults
 
-9. flexibility to customize UI , UI that uou want , UI can change but forms, inputs, validations are concepts that are the same.
+8. flexibility to customize UI , UI that uou want , UI can change but forms, inputs, validations are concepts that are the same.
 
 ## Dependencies
 
@@ -94,9 +94,10 @@ import { DynamicFormModule } from "decorator-driven-dynamic-forms.module";
 @NgModule({
   declarations: [AppComponent],
   imports: [
-      BrowserModule, 
-    HttpClientModule, 
-    DynamicFormModule.scan([Author, Book])], // scan for entities in the system to be ready for injection
+    BrowserModule,
+    HttpClientModule,
+    DynamicFormModule.scan([Author, Book]),
+  ], // scan for entities in the system to be ready for injection
   providers: [],
   bootstrap: [AppComponent],
 })
@@ -112,8 +113,7 @@ any nested forms will take column and creates row as container for each input it
 which provides flexibility in layout break points are managed till now by the form
 
 ```typescript
-
-@FormEntity({name: 'Author'})
+@FormEntity({ name: "Author" })
 export class Author {
   @TextInput({
     id: "name",
@@ -161,9 +161,8 @@ we can add buttons to the form and configure its styles
 standard form actions are supported natively, non standard buttons can be added to it will be explained later.
 
 ```typescript
-
 @Submit({ id: "submit", label: "ok" })
-@FormEntity(({name: 'Book'}))
+@FormEntity({ name: "Book" })
 export class Book {
   @Required({ message: "isbn is mandatory" })
   @TextInput({
@@ -228,7 +227,7 @@ export class Book {
 })
 export class AppComponent implements OnInit {
   title = "dynamic-forms-driver";
-  
+
   onSubmit($event: any) {
     console.log($event);
   }
@@ -298,8 +297,7 @@ validations list
 lets add some validation to the author set min age and name constrains
 
 ```typescript
-
-@FormEntity({name: "Author"})
+@FormEntity({ name: "Author" })
 export class Author {
   @Required({ message: "author name is mandatory" })
   @TextInput({
@@ -379,7 +377,6 @@ lets add the block
 now author class looks like
 
 ```typescript
-
 @CrossValidation({
   errorName: "dateOfDeath",
   effects: [
@@ -399,7 +396,7 @@ now author class looks like
     return null;
   },
 })
-@FormEntity({name:"Author"})
+@FormEntity({ name: "Author" })
 export class Author {
   @Required({ message: "author name is mandatory" })
   @TextInput({
@@ -487,7 +484,7 @@ this will explained later we just explore th API
 
 ```typescript
 @Submit({ id: "submit", label: "ok" })
-@FormEntity({name:"Book", updateStrategy: UpdateStrategy.ON_PLUR })
+@FormEntity({ name: "Book", updateStrategy: UpdateStrategy.ON_PLUR })
 export class Book {
   @AsyncValidation({
     errorName: "isbn",
@@ -614,7 +611,6 @@ let create the component first
 use `@DynamicFormInput({ inputType: "rating" })` to provide it for framework to be used as input
 
 ```typescript
-
 @DynamicFormInput({ inputType: "rating" })
 @Component({
   selector: "app-rating.rating-component",
@@ -727,7 +723,7 @@ book class now looks like
 
 ```typescript
 @Submit({ id: "submit", label: "ok" })
-@FormEntity({name:"Book",  updateStrategy: UpdateStrategy.ON_PLUR })
+@FormEntity({ name: "Book", updateStrategy: UpdateStrategy.ON_PLUR })
 export class Book {
   @AsyncValidation({
     errorName: "isbn",
@@ -809,12 +805,11 @@ export class Book {
 
 #### DynamicFormComponent API selector `ddd-form`
 
-| Input                |               type               |                                                                                                               description |
-| -------------------- | :------------------------------: | ------------------------------------------------------------------------------------------------------------------------: |
-| `entityName`       |             `string`             |                                    name of the entity just provide entity name and it will be searched in the scanned entites  |
-| `[valueTransformer]` | `FormValueTransformer<any, any>` | an interface if provided and object with that interface it will be used to transform form value based on transform method |
-| `[useContext]` | `string` | used to provide string value that represents different uses of the same form can be used with `@UseContext(ctx:string)` to make some inputs appear in some context and not in other |
-
+| Input                |               type               |                                                                                                                                                                         description |
+| -------------------- | :------------------------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| `entityName`         |             `string`             |                                                                                          name of the entity just provide entity name and it will be searched in the scanned entites |
+| `[valueTransformer]` | `FormValueTransformer<any, any>` |                                                           an interface if provided and object with that interface it will be used to transform form value based on transform method |
+| `[useContext]`       |             `string`             | used to provide string value that represents different uses of the same form can be used with `@UseContext(ctx:string)` to make some inputs appear in some context and not in other |
 
 | Output               |                 type                 |                                                                                          description |
 | -------------------- | :----------------------------------: | ---------------------------------------------------------------------------------------------------: |
@@ -834,16 +829,18 @@ export interface FormValueTransformer<T, V> {
 }
 ```
 
-
 #### FormController
 
-used to control form by injecting instance from the component  as ViewChild
+used to control form by injecting instance from the component as ViewChild
+
 ```angular2html
 <d-form entityName="Book" #bookForm></d-form>
 ```
+
 ```typescript
 @ViewChild('bookForm') formController: FormController;
 ```
+
 ```typescript
 export interface FormController {
   markAllAsTouched(): void;
@@ -991,14 +988,18 @@ export class InputTemplateDirective {
 
 ### Decorators
 
+#### @Id()
+
+#### @ContextOverride({context: string, properties: object)
+
 #### `@FormEntity(param?:FormSpec)`
 
 to declare class as form model that can be used in dynamic from component
 param of type
 
 ```typescript
-export type FormSpec = { 
-    name: string;
+export type FormSpec = {
+  name: string;
   updateStrategy: UpdateStrategy;
 };
 ```
@@ -1104,6 +1105,7 @@ export interface SelectInputSpec extends InputSpec {
   bindValue: string | null;
   compareWith: (a: any, b: any) => boolean;
   dataSource: URL | any[] | Observable<any[]>;
+  defaultValueIndex?: number; // sets the index of default value else the defualt is null
 }
 
 export interface CheckInputSpec extends InputSpec {}
@@ -1142,6 +1144,10 @@ export interface CustomInputSpec extends InputSpec {
   @Max({ maxValue: number, message:  string})//message can be parametrized 'age cant be more than ${max} years'
 
   @Min({ minValue: number, message: string})//message can be parametrized 'age cant be lass than ${min}'
+
+  @MaxDate({ maxDate: str | Date, message:  string})
+
+  @MinDate({ minDate: str | Date, message:  string})
 
   @RequiredTrue({ message: string })
 

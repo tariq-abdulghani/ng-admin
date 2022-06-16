@@ -23,5 +23,8 @@ export interface FormController {
 
   fireAction(id: string): void;
   reset(value?: any, emitEvent?: boolean): void;
+  patch(value?: any, emitEvent?: boolean): void;
   getName(): string;
+
+  isValid(): boolean;
 }
