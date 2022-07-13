@@ -15,6 +15,10 @@ export class FormMetaData {
 
   public static get(target: any) {
     // console.log(target);
-    return Reflect.getMetadata(FORM_METADATA_KEY, target) as Map<string, any>;
+    // return Reflect.getMetadata(FORM_METADATA_KEY, target) as Map<string, any>;
+    return new Map(Reflect.getMetadata(FORM_METADATA_KEY, target)) as Map<
+      string,
+      any
+    >;
   }
 }

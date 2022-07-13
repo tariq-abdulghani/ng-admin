@@ -1,5 +1,5 @@
 import { Injectable, Injector } from '@angular/core';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { InputTypes } from '../../models/types/inputs/input-types.enum';
 import { UpdateStrategy } from '../../models/types/forms/form-update-strategy';
 import { InputNodeImpl } from '../../models/types/inputs/input-node-impl';
@@ -12,7 +12,9 @@ import { ValidationsMetaData } from '../../models/decorators/validation/sync/Val
 import { AsyncValidationMeta } from '../../models/decorators/validation/async/async-validation-meta-data';
 import {
   UseContext,
-  USE_CONTEXT_META_KEY, ON_CONTEXT_META_KEY, ContextSpecs,
+  USE_CONTEXT_META_KEY,
+  ON_CONTEXT_META_KEY,
+  ContextSpecs,
 } from '../../models/decorators/context/form-context';
 import 'reflect-metadata';
 
@@ -27,12 +29,10 @@ export class FormEntityProcessorService {
         if (d.getProperty('enableFn')) {
           switch (d.getProperty('enableFn')(formValue)) {
             case true:
-              //@ts-ignore
               d!.getControl()?.enable({ emitEvent: false });
               break;
 
             case false:
-              //@ts-ignore
               d!.getControl()?.disable({ emitEvent: false });
               break;
           }
@@ -63,38 +63,16 @@ export class FormEntityProcessorService {
 
       const properties = InputsMetaData.get(entity, key);
       if (properties && properties?.get('inputType') != InputTypes.COMPOSITE) {
-
-        // const idSpecs: IdSpecs = Reflect.getMetadata(ID_META_KEY, entity, key);
-        //
-        // if (idSpecs && idSpecs.generate == 'SERVER' && context == 'CREATE') {
-        //   // console.log(
-        //   //   'context create and generate on server so skip it on create'
-        //   // );
-        //   continue;
-        // }
-
-        const contextSpecs: ContextSpecs  = Reflect.getMetadata(ON_CONTEXT_META_KEY, entity, key);
-        if(contextSpecs && contextSpecs.context == context){
-            Object.entries(contextSpecs.properties).forEach(([k, v]) => {
-              properties.set(k, v);
-            });
+        const contextSpecs: ContextSpecs = Reflect.getMetadata(
+          ON_CONTEXT_META_KEY,
+          entity,
+          key
+        );
+        if (contextSpecs && contextSpecs.context == context) {
+          Object.entries(contextSpecs.properties).forEach(([k, v]) => {
+            properties.set(k, v);
+          });
         }
-        // if (
-        //   context == 'UPDATE' &&
-        //   Reflect.getMetadata(ON_UPDATE_META_KEY, entity, key)
-        // ) {
-        //   const overrideBy: { [x: string]: any } = Reflect.getMetadata(
-        //     ON_UPDATE_META_KEY,
-        //     entity,
-        //     key
-        //   );
-        //
-        //   Object.entries(overrideBy).forEach(([k, v]) => {
-        //     properties.set(k, v);
-        //   });
-        //   console.log('override', key, overrideBy);
-        // }
-        // console.log('generate as input so its here what ever context is ');
 
         const { validators, errorMap } =
           ValidationsMetaData.getValidatorsAndErrorMap(entity, key);
@@ -116,10 +94,7 @@ export class FormEntityProcessorService {
           // console.log(asyncVal);
 
           if (asyncVal?.provider) {
-            const injValidator = this.injector.get(
-
-              asyncVal?.provider
-            );
+            const injValidator = this.injector.get(asyncVal?.provider);
             // console.log('async validation processing', injValidator);
             formControl.addAsyncValidators(injValidator.validate);
             // formControl.updateValueAndValidity();
@@ -135,11 +110,6 @@ export class FormEntityProcessorService {
         const inputNode = new InputNodeImpl(properties, formControl, errorMap);
         // console.log(inputNode);
         childInputs.push(inputNode);
-        // this.bindEntityToInputNode(
-        //   entity,
-        //   inputNode.getProperty('name'),
-        //   inputNode.getControl() as FormControl
-        // );
       } else if (
         properties &&
         properties?.get('inputType') == InputTypes.COMPOSITE
@@ -164,14 +134,18 @@ export class FormEntityProcessorService {
         // override nested form properties with its parent properties
         // warn??
         for (const propertyKeyValue of formProperties.entries()) {
-          if(propertyKeyValue[0] != 'name' && propertyKeyValue[0] != 'action'){
-            nestedFormNode.addProperty(propertyKeyValue[0], propertyKeyValue[1]);
+          if (
+            propertyKeyValue[0] != 'name' &&
+            propertyKeyValue[0] != 'action'
+          ) {
+            nestedFormNode.addProperty(
+              propertyKeyValue[0],
+              propertyKeyValue[1]
+            );
           }
-
         }
 
         childInputs.push(nestedFormNode);
-        // this.bindEntityToInputTree(entity, key, nestedFormEntity);
       }
     }
 
@@ -223,46 +197,4 @@ export class FormEntityProcessorService {
     });
     return formNode;
   }
-
-  // private bindEntityToInputNode(
-  //   target: any,
-  //   propertyKey: string,
-  //   formControl: FormControl
-  // ) {
-  //   const fc = formControl;
-  //   const setter = function (val?: any) {
-  //     fc.setValue(val);
-  //   };
-  //
-  //   const getter = function () {
-  //     return fc.value;
-  //   };
-  //
-  //   Object.defineProperty(target, propertyKey, {
-  //     set: setter,
-  //     get: getter,
-  //     enumerable: true,
-  //   });
-  // }
-
-  // private bindEntityToInputTree(
-  //   target: any,
-  //   propertyKey: string,
-  //   formEntity: any
-  // ) {
-  //   const setter = function (val?: any) {
-  //     // console.log('value setter is called ', val);
-  //     formEntity.valueSetter(val);
-  //   };
-  //
-  //   const getter = function () {
-  //     return formEntity;
-  //   };
-  //
-  //   Object.defineProperty(target, propertyKey, {
-  //     set: setter,
-  //     get: getter,
-  //     enumerable: true,
-  //   });
-  // }
 }

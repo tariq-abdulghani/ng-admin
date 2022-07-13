@@ -1,4 +1,4 @@
-import { ModuleWithProviders, NgModule } from '@angular/core';
+import { ModuleWithProviders, NgModule, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EntityViewComponent } from './views/entity-view/entity-view.component';
 import { RouterModule } from '@angular/router';
@@ -45,4 +45,18 @@ import { ToDoService } from '../demo/todo.service';
   ],
   providers: [DefaultCrudService, ToDoService],
 })
-export class AdminModule {}
+export class AdminModule {
+  public static register(
+    entities: Type<any>[]
+  ): ModuleWithProviders<DynamicFormModule> {
+    let dFormModuleWProvider = DynamicFormModule.register(entities);
+    return {
+      ngModule: AdminModule,
+      providers: [
+        DefaultCrudService,
+        ToDoService,
+        ...(dFormModuleWProvider?.providers as any[]),
+      ],
+    };
+  }
+}

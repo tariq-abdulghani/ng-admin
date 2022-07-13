@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DynamicFormInput } from '../../../input-component-registry/decorators/dynamic-form-input';
 import { DataLoaderService } from '../../../services/data-loader/data-loader.service';
 import { InputComponent } from '../../input/input.component';
-import {AsyncPipe} from "@angular/common";
+import { AsyncPipe } from '@angular/common';
 
 @DynamicFormInput({ inputType: 'select' })
 @Component({
@@ -12,8 +12,7 @@ import {AsyncPipe} from "@angular/common";
   providers: [DataLoaderService],
 })
 export class SelectInputComponent extends InputComponent implements OnInit {
-
-  options: any[];
+  options!: any[];
   defaultValueIndex: number | undefined;
   defaultValue: any;
 
@@ -22,19 +21,18 @@ export class SelectInputComponent extends InputComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
-    this.defaultValueIndex = this.getInputNode().getProperty('defaultValueIndex')
+    this.defaultValueIndex =
+      this.getInputNode().getProperty('defaultValueIndex');
 
     this.dataLoader
-      .load(this.getInputNode().getProperty('dataSource')
-      ).toPromise().then(data=>{
+      .load(this.getInputNode().getProperty('dataSource'))
+      .toPromise()
+      .then((data) => {
         this.options = data;
-      if (this.defaultValueIndex !== undefined){
-        this.defaultValue = this.options[this.defaultValueIndex];
-        this.getInputNode().getControl().setValue(this.defaultValue, false);
-      }
-    })
-
-
+        if (this.defaultValueIndex !== undefined) {
+          this.defaultValue = this.options[this.defaultValueIndex];
+          this.getInputNode().getControl().setValue(this.defaultValue, false);
+        }
+      });
   }
 }

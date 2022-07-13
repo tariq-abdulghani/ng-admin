@@ -1,4 +1,4 @@
-# Decorator Driven Dynamic Forms version 9.0.0-a.1
+# Decorator Driven Dynamic Forms version 10.0.0-a
 
 > Opinionated way to create dynamic forms with **no json** , **no inheritance**
 > just use **decorators**
@@ -8,7 +8,11 @@
 1. no need for manual construction for form entity its injected now
 2. added new interface FormController to enable us to manage form state
 3. added form context variable to use the same form many times with different contexts
-4. added order attribute, so we can order elements in the view
+4. added context override decorator to override attributes based on context
+5. added order attribute, so we can order elements in the view
+6. fixed disabled issue
+7. fixed mutable meta data issue
+8. fixed decorators are not active in production with optimization
 
 ## Project Goals
 
@@ -96,8 +100,8 @@ import { DynamicFormModule } from "decorator-driven-dynamic-forms.module";
   imports: [
     BrowserModule,
     HttpClientModule,
-    DynamicFormModule.scan([Author, Book]),
-  ], // scan for entities in the system to be ready for injection
+    DynamicFormModule.register([Author, Book]),
+  ], // register for entities in the system to be ready for injection
   providers: [],
   bootstrap: [AppComponent],
 })
@@ -604,7 +608,7 @@ export interface InputNode {
 }
 ```
 
-3. provide cutom ui components
+3. provide custom ui components
    ex`lets create rating component which is used to rate books`
 
 let create the component first
@@ -703,6 +707,24 @@ rating css
   border-color: #0d6efd;
   box-shadow: var(--df-focus-box-shadow);
 }
+```
+
+register custom component
+
+```typescript
+import { DynamicFormModule } from "decorator-driven-dynamic-forms.module";
+
+@NgModule({
+  declarations: [AppComponent],
+  imports: [
+    BrowserModule,
+    HttpClientModule,
+    DynamicFormModule.register([Author, Book, RatingComponent]),
+  ], // register for entities in the system to be ready for injection
+  providers: [],
+  bootstrap: [AppComponent],
+})
+export class AppModule {}
 ```
 
 and in our book class mark input to use it as its input mapping
@@ -807,7 +829,7 @@ export class Book {
 
 | Input                |               type               |                                                                                                                                                                         description |
 | -------------------- | :------------------------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-| `entityName`         |             `string`             |                                                                                          name of the entity just provide entity name and it will be searched in the scanned entites |
+| `entityName`         |             `string`             |                                                                                      name of the entity just provide entity name and it will be searched in the registered entities |
 | `[valueTransformer]` | `FormValueTransformer<any, any>` |                                                           an interface if provided and object with that interface it will be used to transform form value based on transform method |
 | `[useContext]`       |             `string`             | used to provide string value that represents different uses of the same form can be used with `@UseContext(ctx:string)` to make some inputs appear in some context and not in other |
 
@@ -929,23 +951,14 @@ you can use it to generate input nodes and write the full UI from scratch recomm
 @Injectable()
 export class FormEntityProcessorService {
   constructor(private injector: Injector);
+
   public process(formEntity: any): InputNode;
-  private createNode(
+
+  private createContextualNode(
     entity: any,
+    context: UseContext,
     parentProperties?: Map<string, any>
   ): InputNode;
-
-  private bindEntityToInputNode(
-    target: any,
-    propertyKey: string,
-    formControl: FormControl
-  ): void;
-
-  private bindEntityToInputTree(
-    target: any,
-    propertyKey: string,
-    formEntity: any
-  ): void;
 }
 ```
 
@@ -988,9 +1001,22 @@ export class InputTemplateDirective {
 
 ### Decorators
 
-#### @Id()
+#### `@Id()`
 
-#### @ContextOverride({context: string, properties: object)
+used to mark a field as and id field
+in admin library its used to construct URI that needs an id
+
+#### `@UseContext(ctx:string)`
+
+set context variable to form and used to make form reusable
+in many contexts, where we can specify what fields can appear
+to that context to increase usability
+
+#### `@ContextOverride({context: string, properties: object)`
+
+used to override attributes according to context
+some filed may be enabled in a context and disabled in another
+you may also specify other things related to that context
 
 #### `@FormEntity(param?:FormSpec)`
 
@@ -1042,7 +1068,7 @@ to set reset button meta data like label or even it class
 to set submit button meta data like label or even it class
 default class is `btn btn-primary`.
 
-### `Button(meta: NativeActionSpec)`
+#### `@Button(meta: NativeActionSpec)`
 
 to add a custom button to the form like cancel button
 good use case is in pop up with from and you can cancel or save
@@ -1057,23 +1083,25 @@ export type NativeActionSpec = {
 };
 ```
 
-#### `@TextInput(specs: TextInputSpec)`
+### Fields Decorators:
 
-#### `@NumberInput(specs: NumberInputSpec)`
+1. #### `@TextInput(specs: TextInputSpec)`
 
-#### `@DateInput(specs: DateInputSpec)`
+2. #### `@NumberInput(specs: NumberInputSpec)`
 
-#### `@SelectInput(specs: SelectInputSpec)`
+3. #### `@DateInput(specs: DateInputSpec)`
 
-#### `@CheckboxInput(specs: CheckInputSpec)`
+4. #### `@SelectInput(specs: SelectInputSpec)`
 
-#### `@RadioGroupInput(specs: RadioButtonsSpec)`
+5. #### `@CheckboxInput(specs: CheckInputSpec)`
 
-#### `CustomInput(specs: CustomInputSpec)`
+6. #### `@RadioGroupInput(specs: RadioButtonsSpec)`
+
+7. #### `@CustomInput(specs: CustomInputSpec)`
 
 #### `@DynamicFormInput({ inputType: string })`
 
-// used to register components to be used in the form by custom input decorator
+used to register components to be used in the form by custom input decorator
 
 ```typescript
 export interface InputSpec {
@@ -1193,6 +1221,10 @@ export type AsyncValidationSpec = {
   errorName: string;
 };
 ```
+
+## Notes:
+
+any opinions are appreciated, any contributions are welcome thanks .
 
 ## License
 
