@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { AbstractAction, BasicTableAction } from '../services/abstract-action';
+import { AbstractAction, BasicTableAction } from '../actions/abstract-action';
 
 export const TABLE_META_KEY = Symbol('WebResource');
 export type Pagination = {

@@ -1,4 +1,4 @@
-import { ViewContextService } from './view-context.service';
+import { ViewContextService } from '../services/view-context.service';
 
 export abstract class AbstractAction implements BasicTableAction {
   public icon: string;

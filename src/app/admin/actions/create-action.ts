@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateComponent } from '../views/create/create.component';
 import { AbstractAction } from './abstract-action';
-import { ViewContextService } from './view-context.service';
+import { ViewContextService } from '../services/view-context.service';
 
 @Injectable()
 export class CreateAction extends AbstractAction {

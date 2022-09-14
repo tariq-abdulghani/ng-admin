@@ -1,9 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { ViewContextService } from '../services/view-context.service';
 import { UpdateComponent } from '../views/update/update.component';
 import { AbstractAction } from './abstract-action';
-import { ViewContextService } from './view-context.service';
 
 @Injectable()
 export class UpdateAction extends AbstractAction {

@@ -18,14 +18,14 @@ import { Nullable } from '../../utils/nullable';
 import { TableContext } from '../../models/ui-contexts';
 import { ID_META_KEY } from 'src/app/dynamic-form/core/models/decorators/context/form-context';
 import { ViewContextService } from '../../services/view-context.service';
-import { CreateAction } from '../../services/create-action';
-import { UpdateAction } from '../../services/update-action';
-import { DeleteAction } from '../../services/delete-action';
+import { CreateAction } from '../../actions/create-action';
 import { Subscription } from 'rxjs';
 import {
   DefaultCrudService,
   NgAdminCrudWebService,
 } from '../../services/crud.service';
+import { DeleteAction } from '../../actions/delete-action';
+import { UpdateAction } from '../../actions/update-action';
 
 @Component({
   selector: 'app-entity-view',
